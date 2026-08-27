@@ -1,0 +1,45 @@
+name: Remove postos credenciados da interface
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/remove-postos-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remover carrossel de postos credenciados
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          html_path = Path('frontend/public/abastecimentos.html')
+          html = html_path.read_text(encoding='utf-8')
+
+          html = re.sub(r'\n<style>.*?</style>\n', '\n', html, count=1, flags=re.S)
+          html = re.sub(r'\n\s*<div class="card-postos mb-4".*?</div>\s*\n\s*<div class="row g-3 mb-4" id="gridResumoAbastecimento"', '\n\n    <div class="row g-3 mb-4" id="gridResumoAbastecimento"', html, count=1, flags=re.S)
+          html_path.write_text(html, encoding='utf-8')
+
+          js_path = Path('frontend/public/js/pages/abastecimentos.js')
+          js = js_path.read_text(encoding='utf-8')
+          js = js.replace('let listaPostosCredenciados = [];\n', '')
+          js = js.replace("  document.getElementById('buscaPostoCredenciado').addEventListener('input', filtrarPostosCredenciados);\n", '')
+          js = js.replace('  await Promise.all([carregarSelects(), carregarAbastecimentos(), carregarGraficoEResumo(), carregarPostosCredenciados()]);', '  await Promise.all([carregarSelects(), carregarAbastecimentos(), carregarGraficoEResumo()]);')
+          js = re.sub(r'/\*\* Carrega a rede de postos credenciados.*?\n}\n\n/\*\* Motorista comum', '/** Motorista comum', js, count=1, flags=re.S)
+          js_path.write_text(js, encoding='utf-8')
+
+      - name: Commitar alterações
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/public/abastecimentos.html frontend/public/js/pages/abastecimentos.js
+          git commit -m 'fix: remover carrossel de postos credenciados' || exit 0
+          git push
