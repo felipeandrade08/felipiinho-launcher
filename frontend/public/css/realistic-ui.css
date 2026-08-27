@@ -1,0 +1,101 @@
+/* FELIPINHO LAUNCHER — Realistic UI Upgrade
+   Camada visual adicional: cockpit/logistics dashboard, depth, glass, motion.
+*/
+:root {
+  --real-black:#080a0b;
+  --real-panel:#101416;
+  --real-panel-2:#151a1d;
+  --real-line:rgba(255,255,255,.08);
+  --real-accent:#d4a017;
+  --real-accent-soft:rgba(212,160,23,.14);
+  --real-text:#f4f6f5;
+  --real-muted:#89938f;
+}
+
+body:not(:has(.tela-login)) { background:linear-gradient(135deg,#eef1ef 0%,#e7ebe9 100%); }
+
+.sidebar {
+  background:
+    radial-gradient(circle at 20% 0%,rgba(212,160,23,.11),transparent 30%),
+    linear-gradient(180deg,#0d1011 0%,#060708 100%);
+  border-right:1px solid rgba(255,255,255,.07);
+  box-shadow:14px 0 40px rgba(0,0,0,.16);
+}
+.sidebar-marca { padding:20px 18px; border-bottom:1px solid rgba(255,255,255,.06); }
+.sidebar-marca__icone-img { box-shadow:0 8px 24px rgba(0,0,0,.35); }
+.sidebar-link { margin:3px 0; border:1px solid transparent; transition:all .2s ease; }
+.sidebar-link:hover { background:rgba(255,255,255,.055); border-color:rgba(255,255,255,.06); transform:translateX(2px); }
+.sidebar-link.ativo { background:linear-gradient(90deg,rgba(212,160,23,.18),rgba(212,160,23,.05)); border-color:rgba(212,160,23,.18); box-shadow:inset 0 0 18px rgba(212,160,23,.04); }
+
+.topbar {
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 1px 0 rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.035);
+}
+.topbar-titulo h1 { letter-spacing:-.035em; }
+.icone-notificacao,.perfil-usuario { border:1px solid var(--cinza-200); transition:all .2s ease; }
+.icone-notificacao:hover,.perfil-usuario:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.08); }
+
+.area-pagina { position:relative; }
+.area-pagina::before {
+  content:''; position:fixed; width:520px; height:520px; right:-220px; top:110px; pointer-events:none; z-index:-1;
+  background:radial-gradient(circle,rgba(212,160,23,.08),transparent 68%);
+}
+.card-gr,.card-indicador {
+  border-color:rgba(20,28,25,.09);
+  box-shadow:0 10px 30px rgba(22,31,27,.06),0 2px 6px rgba(22,31,27,.04);
+}
+.card-gr { overflow:hidden; }
+.card-gr__header { background:linear-gradient(180deg,rgba(250,251,250,.98),rgba(255,255,255,.98)); }
+.card-indicador { background:linear-gradient(145deg,#fff 0%,#f9fbfa 100%); }
+.card-indicador::after {
+  content:''; position:absolute; width:120px;height:120px;right:-45px;bottom:-55px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,.12),transparent 68%); pointer-events:none;
+}
+.card-indicador__valor { letter-spacing:-.04em; }
+
+.tabela-gr tbody tr { transition:transform .16s ease,background .16s ease,box-shadow .16s ease; }
+.tabela-gr tbody tr:hover { transform:translateX(2px); box-shadow:inset 3px 0 0 var(--verde-limao); }
+
+.btn-gr-primario,.btn-entrar {
+  box-shadow:0 8px 18px rgba(212,160,23,.16);
+}
+.btn-gr-primario:hover,.btn-entrar:hover { box-shadow:0 12px 28px rgba(212,160,23,.25); }
+
+/* Login: aparência de cabine/cockpit */
+.tela-login { position:relative; }
+#fundo-pagina { filter:saturate(.88) contrast(1.06); }
+.tela-login::after {
+  content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(90deg,rgba(4,7,6,.10) 0%,rgba(4,7,6,.18) 55%,rgba(4,7,6,.72) 100%),linear-gradient(0deg,rgba(0,0,0,.32),transparent 42%);
+}
+.login-lateral,.login-form-area { z-index:3; }
+.login-lateral { padding-left:clamp(34px,6vw,92px); }
+.logo-img { width:54px;height:54px; border-radius:14px; }
+.login-form-area { background:transparent; }
+.card-login {
+  background:linear-gradient(145deg,rgba(13,17,16,.92),rgba(5,8,8,.88));
+  border:1px solid rgba(212,160,23,.22);
+  box-shadow:0 30px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.25);
+}
+.card-login::after {
+  content:''; position:absolute; inset:1px; border-radius:23px; pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.04),transparent 28%,transparent 70%,rgba(212,160,23,.035));
+}
+.campo-input { background:rgba(255,255,255,.045); border-color:rgba(255,255,255,.10); }
+.campo-input:hover { border-color:rgba(255,255,255,.18); }
+.btn-entrar { position:relative; z-index:1; }
+
+/* Micro detalhes de status */
+.badge-live__dot { box-shadow:0 0 0 4px rgba(46,204,113,.08); }
+.sidebar-rodape { background:rgba(255,255,255,.015); }
+
+@media (max-width:991px) {
+  .topbar { box-shadow:0 4px 24px rgba(0,0,0,.06); }
+  .area-pagina { padding-top:22px; }
+}
+@media (max-width:576px) {
+  .card-gr__body { padding:16px; }
+  .card-indicador { padding:16px; }
+}
