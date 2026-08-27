@@ -4,7 +4,6 @@
 
 let modalAbastecimento;
 let listaAbastecimentosAtual = [];
-let listaPostosCredenciados = [];
 
 (async function () {
   montarLayout({
@@ -21,73 +20,9 @@ let listaPostosCredenciados = [];
   document.getElementById('btnNovoAbastecimento').addEventListener('click', abrirModalNovo);
   document.getElementById('formAbastecimento').addEventListener('submit', salvarAbastecimento);
   document.getElementById('filtroCaminhaoId').addEventListener('change', carregarAbastecimentos);
-  document.getElementById('buscaPostoCredenciado').addEventListener('input', filtrarPostosCredenciados);
 
-  await Promise.all([carregarSelects(), carregarAbastecimentos(), carregarGraficoEResumo(), carregarPostosCredenciados()]);
+  await Promise.all([carregarSelects(), carregarAbastecimentos(), carregarGraficoEResumo()]);
 })();
-
-/** Carrega a rede de postos credenciados e monta a esteira animada. */
-async function carregarPostosCredenciados() {
-  try {
-    listaPostosCredenciados = await ApiService.get('/abastecimentos/postos-credenciados');
-    montarEsteiraPostos(listaPostosCredenciados);
-  } catch (erro) {
-    console.error('Erro ao carregar postos credenciados:', erro);
-    document.getElementById('wrapperEsteiraPostos').innerHTML =
-      '<p class="card-postos__vazio">Não foi possível carregar a lista de postos credenciados.</p>';
-  }
-}
-
-function chipPostoHtml(p) {
-  const icone = p.filial ? 'fa-building' : 'fa-gas-pump';
-  const classeFilial = p.filial ? 'chip-posto--filial' : '';
-  return `
-    <div class="chip-posto ${classeFilial}">
-      <i class="fa-solid ${icone}"></i>
-      <div>
-        <div class="chip-posto__posto">${p.posto}</div>
-        <div class="chip-posto__cidade">${p.cidade}</div>
-      </div>
-    </div>
-  `;
-}
-
-/** Duplica a lista de chips para a animação de rolagem ficar contínua (loop sem corte). */
-function montarEsteiraPostos(postos) {
-  const esteira = document.getElementById('esteiraPostos');
-  if (!postos.length) {
-    document.getElementById('wrapperEsteiraPostos').innerHTML =
-      '<p class="card-postos__vazio">Nenhum posto credenciado cadastrado.</p>';
-    return;
-  }
-  const chips = postos.map(chipPostoHtml).join('');
-  esteira.innerHTML = chips + chips; // duplicado: a animação translateX(-50%) volta exatamente onde começou
-}
-
-/** Filtra a lista por posto ou cidade; ao digitar, troca a esteira animada por um grid estático de resultados. */
-function filtrarPostosCredenciados(evento) {
-  const termo = evento.target.value.trim().toLowerCase();
-  const wrapperEsteira = document.getElementById('wrapperEsteiraPostos');
-  const divResultados = document.getElementById('resultadosPostos');
-
-  if (!termo) {
-    wrapperEsteira.classList.remove('escondido');
-    divResultados.classList.remove('ativo');
-    divResultados.innerHTML = '';
-    return;
-  }
-
-  const filtrados = listaPostosCredenciados.filter((p) =>
-    p.posto.toLowerCase().includes(termo) || p.cidade.toLowerCase().includes(termo)
-  );
-
-  wrapperEsteira.classList.add('escondido');
-  divResultados.classList.add('ativo');
-
-  divResultados.innerHTML = filtrados.length
-    ? filtrados.map(chipPostoHtml).join('')
-    : '<p class="card-postos__vazio">Nenhum posto credenciado encontrado para essa busca.</p>';
-}
 
 /** Motorista comum não escolhe quem abasteceu (é sempre ele mesmo). */
 function ajustarFormularioPorPerfil() {
