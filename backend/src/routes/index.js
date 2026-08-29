@@ -26,7 +26,7 @@ router.get('/stats-publicas', async (req, res) => {
 router.use(exigirAutenticacao);
 router.use(contextoConta);
 
-router.use('/planos', require('./planos.routes'));
+router.use('/planos', require('./planos.routes'));\nrouter.use('/assinaturas', require('./assinaturas.routes'));
 router.use('/viagens', require('./viagens.routes'));
 router.use('/abastecimentos', require('./abastecimentos.routes'));
 router.use('/manutencoes', require('./manutencoes.routes'));
