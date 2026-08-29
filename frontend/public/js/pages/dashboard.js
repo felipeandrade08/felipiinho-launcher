@@ -122,6 +122,23 @@ async function montarDashboardAdmin() {
       </div>
     </div>
 
+    <!-- ETAPA 8: CENTRAL DE PERFORMANCE -->
+    <div class="row g-3 mb-1">
+      <div class="col-12" data-aos="fade-up">
+        <div class="card-gr performance-card">
+          <div class="card-gr__header">
+            <h3><i class="fa-solid fa-chart-line me-2" style="color:#D4A017"></i>Central de Performance</h3>
+            <span class="performance-period">INDICADORES DA OPERAÇÃO</span>
+          </div>
+          <div class="card-gr__body">
+            <div class="performance-grid" id="centralPerformance">
+              <div class="text-center text-muted py-3" style="font-size:.8rem">Calculando indicadores...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- FEED DE ENTREGAS + HALL DA FAMA -->
     <div class="row g-3 mt-1">
       <div class="col-lg-7" data-aos="fade-up">
@@ -161,7 +178,7 @@ async function montarDashboardAdmin() {
     renderizarTopMotoristas(resumo.top_motoristas);
     renderizarAlertas(resumo.alertas);
     renderizarFeedEntregas(resumo.ultimas_viagens);
-    renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);
+    renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);\n    renderizarCentralPerformance(resumo.indicadores, resumo.ultimas_viagens, hallFama);
     renderizarHallDaFama(hallFama);
   } catch (erro) {
     console.error(erro);
@@ -900,4 +917,38 @@ function renderizarVisaoFrota(viagens, indicadores) {
       </div>
     `;
   }).join('');
+}
+
+
+// =====================================================================
+// ETAPA 8 — CENTRAL DE PERFORMANCE
+// =====================================================================
+function renderizarCentralPerformance(indicadores = {}, viagens = [], hallFama = []) {
+  const alvo = document.getElementById('centralPerformance');
+  if (!alvo) return;
+
+  const concluidas = viagens.filter(v => v.status === 'concluida').length;
+  const totalViagens = viagens.length || Number(indicadores.total_viagens || 0);
+  const eficiencia = totalViagens ? Math.round((concluidas / totalViagens) * 100) : 0;
+  const faturamento = Number(indicadores.faturamento_total || indicadores.faturamento || 0);
+  const km = Number(indicadores.km_total || indicadores.quilometragem_total || 0);
+  const receitaKm = km > 0 ? faturamento / km : null;
+  const frotaTotal = Number(indicadores.total_caminhoes || 0);
+  const disponiveis = Number(indicadores.caminhoes_disponiveis || 0);
+  const utilizacao = frotaTotal > 0 ? Math.max(0, Math.round(((frotaTotal - disponiveis) / frotaTotal) * 100)) : 0;
+  const lider = Array.isArray(hallFama) && hallFama.length ? (hallFama[0].nome || hallFama[0].motorista_nome || 'Sem dados') : 'Sem dados';
+
+  const cards = [
+    {icon:'fa-bullseye', label:'Eficiência operacional', value: totalViagens ? eficiencia + '%' : '—', detail: totalViagens ? concluidas + ' entregas concluídas' : 'Sem viagens no período', progress:eficiencia},
+    {icon:'fa-coins', label:'Receita por KM', value: receitaKm !== null ? Formatador.moeda(receitaKm) : '—', detail: km > 0 ? Formatador.numero(km) + ' KM analisados' : 'Aguardando quilometragem', progress:Math.min(receitaKm || 0,100)},
+    {icon:'fa-truck', label:'Utilização da frota', value: frotaTotal ? utilizacao + '%' : '—', detail: frotaTotal ? (frotaTotal-disponiveis) + ' de ' + frotaTotal + ' em operação' : 'Aguardando dados da frota', progress:utilizacao},
+    {icon:'fa-crown', label:'Motorista em destaque', value: lider, detail:'Líder do ranking atual', progress:100, leader:true}
+  ];
+
+  alvo.innerHTML = cards.map(c => `<div class="performance-item${c.leader ? ' performance-item--leader' : ''}">
+    <div class="performance-icon"><i class="fa-solid ${c.icon}"></i></div>
+    <div class="performance-content"><span>${c.label}</span><strong>${c.value}</strong><small>${c.detail}</small>
+      <div class="performance-bar"><i style="width:${c.progress}%"></i></div>
+    </div>
+  </div>`).join('');
 }
