@@ -35,6 +35,19 @@ function formatarMesLabel(mesAno) {
 async function montarDashboardAdmin() {
   const main = document.getElementById('conteudoPagina');
   main.innerHTML = `
+    <!-- ETAPA 9: COMANDO DA OPERAÇÃO -->
+    <section class="dashboard-command mb-4" data-aos="fade-up">
+      <div>
+        <span class="dashboard-command__eyebrow"><i class="fa-solid fa-tower-broadcast"></i> CENTRAL OPERACIONAL</span>
+        <h2>Operação sob controle</h2>
+        <p>Resumo atualizado da frota, entregas e desempenho.</p>
+      </div>
+      <div class="dashboard-command__actions">
+        <div class="dashboard-command__sync"><span></span><div><small>STATUS DO SISTEMA</small><strong id="dashboardSyncStatus">Atualizado agora</strong></div></div>
+        <button type="button" class="dashboard-refresh" id="btnAtualizarDashboard"><i class="fa-solid fa-rotate-right"></i><span>Atualizar</span></button>
+      </div>
+    </section>
+
     <section class="row g-3 mb-4" id="gridIndicadores" data-aos="fade-up"></section>
 
     <div class="row g-3 mb-4">
@@ -179,6 +192,7 @@ async function montarDashboardAdmin() {
     renderizarAlertas(resumo.alertas);
     renderizarFeedEntregas(resumo.ultimas_viagens);
     renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);\n    renderizarCentralPerformance(resumo.indicadores, resumo.ultimas_viagens, hallFama);
+    configurarAtualizacaoDashboard();
     renderizarHallDaFama(hallFama);
   } catch (erro) {
     console.error(erro);
@@ -951,4 +965,45 @@ function renderizarCentralPerformance(indicadores = {}, viagens = [], hallFama =
       <div class="performance-bar"><i style="width:${c.progress}%"></i></div>
     </div>
   </div>`).join('');
+}
+
+
+// =====================================================================
+// ETAPA 9 — CONTROLES DA CENTRAL
+// =====================================================================
+function configurarAtualizacaoDashboard() {
+  const botao = document.getElementById('btnAtualizarDashboard');
+  const status = document.getElementById('dashboardSyncStatus');
+  if (!botao || botao.dataset.configurado) return;
+
+  botao.dataset.configurado = 'true';
+  botao.addEventListener('click', async () => {
+    const icone = botao.querySelector('i');
+    botao.disabled = true;
+    icone.classList.add('fa-spin');
+    if (status) status.textContent = 'Atualizando dados...';
+
+    try {
+      const resumo = await ApiService.get('/dashboard/resumo');
+      const hallFama = await ApiService.get('/motoristas/hall-da-fama?limite=5');
+
+      renderizarIndicadoresAdmin(resumo.indicadores);
+      renderizarGraficoFaturamento(resumo.faturamento_por_mes);
+      renderizarGraficoViagensStatus(resumo.viagens_por_status);
+      renderizarUltimasViagens(resumo.ultimas_viagens);
+      renderizarTopMotoristas(resumo.top_motoristas);
+      renderizarAlertas(resumo.alertas);
+      renderizarFeedEntregas(resumo.ultimas_viagens);
+      renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);
+      renderizarCentralPerformance(resumo.indicadores, resumo.ultimas_viagens, hallFama);
+
+      if (status) status.textContent = 'Atualizado agora';
+    } catch (erro) {
+      console.error('Erro ao atualizar dashboard:', erro);
+      if (status) status.textContent = 'Não foi possível atualizar';
+    } finally {
+      botao.disabled = false;
+      icone.classList.remove('fa-spin');
+    }
+  });
 }
