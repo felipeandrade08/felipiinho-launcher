@@ -32,6 +32,9 @@ router.get('/stats-publicas', async (req, res) => {
 // A partir daqui, todas as rotas exigem usuário autenticado e aprovado.
 router.use(exigirAutenticacao);
 
+// Conta e planos
+router.use('/planos', require('./planos.routes'));
+
 // Módulos compartilhados entre admin e motorista
 router.use('/viagens', require('./viagens.routes'));
 router.use('/abastecimentos', require('./abastecimentos.routes'));
@@ -42,9 +45,6 @@ router.use('/motoristas', require('./motoristas.routes'));
 router.use('/telemetria', require('./telemetria.routes'));
 
 // Listagem de caminhões e reboques: qualquer usuário autenticado pode consultar
-// (necessário para preencher selects em Nova Viagem e Novo Abastecimento).
-// As operações de criação, edição e exclusão continuam protegidas por exigirAdminOuRH
-// (registradas logo abaixo via router.use completo).
 const CaminhaoController = require('../controllers/CaminhaoController');
 const ReboqueController = require('../controllers/ReboqueController');
 router.get('/caminhoes', CaminhaoController.listar);
