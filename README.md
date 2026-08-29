@@ -121,8 +121,8 @@ npm install
 cp .env.example .env
 ```
 
-Edite o arquivo `.env` com as credenciais do seu MySQL (e defina um `JWT_SECRET`
-próprio — qualquer texto longo e aleatório serve):
+Edite o arquivo `.env` com as credenciais do seu MySQL e defina um `JWT_SECRET`
+forte, aleatório e exclusivo para o ambiente:
 
 ```
 DB_HOST=localhost
@@ -130,8 +130,10 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=sua_senha
 DB_NAME=gr_expresso
-JWT_SECRET=qualquer-texto-longo-e-aleatorio-aqui
+JWT_SECRET=seu-segredo-forte-e-aleatorio
 ```
+
+**Nunca publique o arquivo `.env` nem credenciais reais no repositório.**
 
 ### 3. Criar o banco de dados
 
@@ -142,6 +144,8 @@ npm run db:init
 # Cria as tabelas E popula com dados de exemplo (recomendado para teste)
 npm run db:init -- --seed
 ```
+
+O seed contém somente dados de exemplo. **Credenciais administrativas não são publicadas no repositório.**
 
 ### 4. Iniciar o servidor
 
@@ -265,12 +269,10 @@ O sistema possui **login real com dois perfis**:
 - **Administrador**: acesso completo a todos os módulos (dashboard, frota, financeiro, relatórios, integrações, aprovação de novos motoristas).
 - **Motorista**: acesso a uma área própria, com painel pessoal, suas viagens, seus abastecimentos, suas notas fiscais (geradas automaticamente) e o ranking geral.
 
-### Login de administrador padrão (criado pelo seed)
-```
-E-mail: admin@grexpresso.com
-Senha:  admin123
-```
-> Troque essa senha assim que possível em um ambiente real (ainda não há tela de troca de senha — pode ser feito diretamente no banco caso necessário).
+### Como um administrador é configurado
+
+As credenciais administrativas **não são armazenadas no README, no código-fonte ou em comentários do seed**.
+O administrador deve ser criado ou atualizado diretamente no banco usando um hash bcrypt para a senha.
 
 ### Como um motorista ganha acesso
 1. O motorista acessa a tela de login e clica em **"Criar minha conta"**.
