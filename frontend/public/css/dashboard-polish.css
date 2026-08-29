@@ -1,0 +1,23 @@
+/* FELIPINHO LAUNCHER — acabamento visual Dashboard (etapas 10-14) */
+#gridIndicadores .card-indicador{position:relative;min-height:154px;padding:18px!important}
+#gridIndicadores .card-indicador:after{content:'';position:absolute;right:15px;bottom:14px;width:38px;height:3px;border-radius:99px;background:#e9eeeb}
+#gridIndicadores .card-indicador__valor{font-variant-numeric:tabular-nums}
+#gridIndicadores .card-indicador__label{max-width:88%;line-height:1.35}
+.card-gr .card-gr__header h3{letter-spacing:-.015em}
+.card-gr .card-gr__header .btn-gr-outline{box-shadow:0 2px 7px rgba(20,30,24,.04)}
+.table-responsive{overflow-x:auto}
+.tabela-gr tbody tr{height:54px}
+.tabela-gr td{white-space:nowrap}
+.tabela-gr td:nth-child(3){max-width:290px;overflow:hidden;text-overflow:ellipsis}
+#listaTopMotoristas .podio-item{min-height:62px;display:flex;align-items:center;gap:10px}
+#listaTopMotoristas .podio-item.primeiro{border:1px solid rgba(212,160,23,.16)}
+#feedEntregas{max-height:390px;overflow:auto;scrollbar-width:thin}
+#hallFama{max-height:390px;overflow:auto;scrollbar-width:thin}
+#centralPerformance{min-height:118px}
+.performance-item{min-height:112px}
+.frota-item{min-height:78px}
+.dashboard-command__sync{box-shadow:0 2px 8px rgba(20,30,24,.035)}
+.dashboard-refresh:focus-visible,.btn-gr-outline:focus-visible{outline:3px solid rgba(212,160,23,.25);outline-offset:2px}
+.card-gr:has(.text-center.text-muted){min-height:100px}
+@media(max-width:768px){#gridIndicadores .card-indicador{min-height:136px;padding:15px!important}.card-gr__header{gap:8px}.card-gr__header h3{font-size:.82rem!important}.tabela-gr td{padding:11px 10px!important}.tabela-gr td:nth-child(3){max-width:220px}.performance-item{min-height:96px}.frota-item{min-height:70px}}
+@media(prefers-reduced-motion:reduce){.card-gr,.card-indicador,.frota-item,.hall-item,.performance-item{transition:none!important}.feed-item{animation:none!important}.frota-marker,.frota-radar__pulse{animation:none!important}}
