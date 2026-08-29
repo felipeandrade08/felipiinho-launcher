@@ -57,15 +57,15 @@ async function obterLimite(planoId, recurso) {
     `SELECT limite FROM plano_limites WHERE plano_id = ? AND recurso = ? LIMIT 1`,
     [planoId, recurso]
   );
-  return linhas[0] ? linhas[0].limite : null;
+  return linhas[0] ? Number(linhas[0].limite) : null;
 }
 
 async function temRecurso(planoId, recurso) {
   const [linhas] = await pool.query(
-    `SELECT disponivel FROM plano_recursos WHERE plano_id = ? AND recurso = ? LIMIT 1`,
+    `SELECT habilitado FROM plano_recursos WHERE plano_id = ? AND recurso = ? LIMIT 1`,
     [planoId, recurso]
   );
-  return !!(linhas[0] && linhas[0].disponivel);
+  return !!(linhas[0] && linhas[0].habilitado);
 }
 
 module.exports = {
