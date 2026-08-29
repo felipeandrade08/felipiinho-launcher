@@ -9,12 +9,11 @@ const { sucesso, criado, naoEncontrado, requisicaoInvalida } = require('../utils
 const MotoristaController = {
   listar: asyncHandler(async (req, res) => {
     const { status, busca } = req.query;
-    const motoristas = await MotoristaModel.listarTodos({ status, busca });
-    return sucesso(res, motoristas);
+    return sucesso(res, await MotoristaModel.listarTodos({ status, busca, contaId: req.conta.id }));
   }),
 
   buscarPorId: asyncHandler(async (req, res) => {
-    const motorista = await MotoristaModel.buscarPorId(req.params.id);
+    const motorista = await MotoristaModel.buscarPorId(req.params.id, req.conta.id);
     if (!motorista) return naoEncontrado(res, 'Motorista não encontrado.');
     return sucesso(res, motorista);
   }),
@@ -22,54 +21,32 @@ const MotoristaController = {
   criar: asyncHandler(async (req, res) => {
     const { nome } = req.body;
     if (!nome) return requisicaoInvalida(res, 'O campo "nome" é obrigatório.');
-
-    const motorista = await MotoristaModel.criar(req.body);
+    const motorista = await MotoristaModel.criar(req.body, req.conta.id);
     return criado(res, motorista, 'Motorista cadastrado com sucesso.');
   }),
 
   atualizar: asyncHandler(async (req, res) => {
-    const existente = await MotoristaModel.buscarPorId(req.params.id);
+    const existente = await MotoristaModel.buscarPorId(req.params.id, req.conta.id);
     if (!existente) return naoEncontrado(res, 'Motorista não encontrado.');
-
-    const motorista = await MotoristaModel.atualizar(req.params.id, req.body);
-    return sucesso(res, motorista, 'Motorista atualizado com sucesso.');
+    return sucesso(res, await MotoristaModel.atualizar(req.params.id, req.body, req.conta.id), 'Motorista atualizado com sucesso.');
   }),
 
   excluir: asyncHandler(async (req, res) => {
-    const existente = await MotoristaModel.buscarPorId(req.params.id);
+    const existente = await MotoristaModel.buscarPorId(req.params.id, req.conta.id);
     if (!existente) return naoEncontrado(res, 'Motorista não encontrado.');
-
-    await MotoristaModel.excluir(req.params.id);
+    await MotoristaModel.excluir(req.params.id, req.conta.id);
     return sucesso(res, null, 'Motorista excluído com sucesso.');
   }),
 
-  ranking: asyncHandler(async (req, res) => {
-    const limite = Number(req.query.limite) || 10;
-    const ranking = await MotoristaModel.ranking(limite);
-    return sucesso(res, ranking);
-  }),
+  ranking: asyncHandler(async (req, res) => sucesso(res, await MotoristaModel.ranking(Number(req.query.limite) || 10, req.conta.id))),
 
-  /**
-   * PUT /api/motoristas/:id/foto
-   * Atualiza a foto de perfil do motorista (qualquer usuário autenticado pode
-   * atualizar a própria foto; admins podem atualizar qualquer motorista).
-   * Body: { foto_url: "https://..." }
-   */
   atualizarFoto: asyncHandler(async (req, res) => {
-    const { id } = req.params;
     const { foto_url } = req.body;
-
     if (!foto_url) return requisicaoInvalida(res, 'O campo "foto_url" é obrigatório.');
-
-    // Validação básica de URL
-    try { new URL(foto_url); } catch {
-      return requisicaoInvalida(res, 'foto_url deve ser uma URL válida.');
-    }
-
-    const existente = await MotoristaModel.buscarPorId(id);
+    try { new URL(foto_url); } catch { return requisicaoInvalida(res, 'foto_url deve ser uma URL válida.'); }
+    const existente = await MotoristaModel.buscarPorId(req.params.id, req.conta.id);
     if (!existente) return naoEncontrado(res, 'Motorista não encontrado.');
-
-    await MotoristaModel.atualizarFoto(id, foto_url);
+    await MotoristaModel.atualizarFoto(req.params.id, foto_url, req.conta.id);
     return sucesso(res, { foto_url }, 'Foto de perfil atualizada com sucesso.');
   })
 };
