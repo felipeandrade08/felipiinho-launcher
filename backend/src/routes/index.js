@@ -9,6 +9,7 @@ const { contextoConta } = require('../middlewares/contextoConta');
 
 router.get('/health', (req, res) => res.json({ sucesso: true, mensagem: 'FELIPINHO LAUNCHER API está operacional.', timestamp: new Date().toISOString() }));
 router.use('/recrutamentos', require('./recrutamentos.routes'));
+router.use('/empresas', require('./empresas.routes'));
 router.use('/auth', require('./auth.routes'));
 
 router.get('/stats-publicas', async (req, res) => {
@@ -26,7 +27,8 @@ router.get('/stats-publicas', async (req, res) => {
 router.use(exigirAutenticacao);
 router.use(contextoConta);
 
-router.use('/planos', require('./planos.routes'));\nrouter.use('/assinaturas', require('./assinaturas.routes'));
+router.use('/planos', require('./planos.routes'));
+router.use('/assinaturas', require('./assinaturas.routes'));
 router.use('/viagens', require('./viagens.routes'));
 router.use('/abastecimentos', require('./abastecimentos.routes'));
 router.use('/manutencoes', require('./manutencoes.routes'));
