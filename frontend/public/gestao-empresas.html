@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Gestão de Empresas | FELIPINHO LAUNCHER</title>
+<link rel="icon" href="img/logo/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/realistic-ui.css"><link rel="stylesheet" href="css/gestao-empresas.css">
+</head>
+<body class="ge-page">
+<header class="ge-header"><a href="dashboard.html" class="ge-brand"><img src="img/logo/logo-gr-expresso.png" alt="FELIPINHO LAUNCHER"><span>FELIPINHO LAUNCHER<small>Gestão de Empresas</small></span></a><div class="ge-actions"><a href="empresas.html" class="ge-btn ge-btn-ghost"><i class="fa-solid fa-eye"></i> Ver vitrine</a><button id="btnNovaEmpresa" class="ge-btn ge-btn-primary"><i class="fa-solid fa-plus"></i> Nova empresa</button></div></header>
+<main class="ge-main">
+<section class="ge-hero"><div><div class="ge-kicker"><i class="fa-solid fa-shield-halved"></i> PAINEL ADMINISTRATIVO</div><h1>Gestão de <span>Empresas</span></h1><p>Cadastre, edite e organize as transportadoras que fazem parte do ecossistema.</p></div><div class="ge-status"><span></span> Área protegida</div></section>
+<section id="geResumo" class="ge-summary"></section>
+<section class="ge-toolbar"><div><span class="ge-kicker">TRANSPORTADORAS</span><h2>Empresas cadastradas</h2></div><div class="ge-tools"><input id="geBusca" placeholder="Buscar empresa..." autocomplete="off"><select id="geStatus"><option value="">Todos os status</option><option value="ativa">Ativas</option><option value="inativa">Inativas</option></select></div></section>
+<section id="geLista" class="ge-grid"><div class="ge-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Carregando empresas...</div></section>
+</main>
+<div id="empresaModal" class="ge-modal" aria-hidden="true"><div class="ge-modal-card"><div class="ge-modal-head"><div><span class="ge-kicker">CADASTRO</span><h2 id="modalTitulo">Nova empresa</h2></div><button id="btnFecharModal" class="ge-close"><i class="fa-solid fa-xmark"></i></button></div>
+<form id="empresaForm">
+<input type="hidden" id="empresaId">
+<div class="ge-form-grid"><label>Nome da empresa *<input id="nome" required maxlength="120"></label><label>Slug público<input id="slug" maxlength="120" placeholder="gerado automaticamente"></label><label class="full">Descrição<textarea id="descricao" rows="4" maxlength="1000"></textarea></label><label>Localização / base<input id="localizacao" maxlength="120" placeholder="Brasil · São Paulo"></label><label>Data de fundação<input id="data_fundacao" type="date"></label><label>Logo (URL)<input id="logo_url" type="url" placeholder="https://..."></label><label>Capa (URL)<input id="capa_url" type="url" placeholder="https://..."></label><label>Discord<input id="discord" maxlength="255" placeholder="https://discord.gg/..."></label><label>Instagram<input id="instagram" maxlength="255" placeholder="https://instagram.com/..."></label><label>Site<input id="site" type="url" maxlength="255" placeholder="https://..."></label><label>Caminhões<input id="caminhoes" type="number" min="0" value="0"></label><label>Motoristas<input id="motoristas" type="number" min="0" value="0"></label><label>Pontuação no ranking<input id="pontuacao_ranking" type="number" min="0" value="0"></label><label>Posição no ranking<input id="posicao_ranking" type="number" min="1" placeholder="Automática"></label></div>
+<div class="ge-checks"><label><input id="destaque" type="checkbox"> Empresa em destaque</label><label><input id="status" type="checkbox" checked> Empresa ativa</label></div>
+<div class="ge-form-actions"><button type="button" id="btnCancelar" class="ge-btn ge-btn-ghost">Cancelar</button><button class="ge-btn ge-btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> <span id="btnSalvarTexto">Criar empresa</span></button></div>
+</form></div></div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script src="js/config.js"></script><script src="js/services/api.js"></script><script src="js/services/auth.js"></script><script src="js/pages/gestao-empresas.js"></script>
+</body></html>
