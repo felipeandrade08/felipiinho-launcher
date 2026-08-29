@@ -191,7 +191,8 @@ async function montarDashboardAdmin() {
     renderizarTopMotoristas(resumo.top_motoristas);
     renderizarAlertas(resumo.alertas);
     renderizarFeedEntregas(resumo.ultimas_viagens);
-    renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);\n    renderizarCentralPerformance(resumo.indicadores, resumo.ultimas_viagens, hallFama);
+    renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);
+    renderizarCentralPerformance(resumo.indicadores, resumo.ultimas_viagens, hallFama);
     configurarAtualizacaoDashboard();
     renderizarHallDaFama(hallFama);
   } catch (erro) {
