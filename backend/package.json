@@ -30,7 +30,8 @@
     "express-validator": "^7.1.0",
     "express-rate-limit": "7.3.1",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "stripe": "^18.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
