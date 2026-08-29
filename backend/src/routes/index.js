@@ -10,7 +10,10 @@ const { contextoConta } = require('../middlewares/contextoConta');
 router.get('/health', (req, res) => res.json({ sucesso: true, mensagem: 'FELIPINHO LAUNCHER API está operacional.', timestamp: new Date().toISOString() }));
 router.use('/recrutamentos', require('./recrutamentos.routes'));
 router.use('/empresas', require('./empresas.routes'));
-router.use('/auth', require('./auth.routes'));
+
+// Garante que o login tenha o corpo JSON interpretado antes do controller,
+// mesmo que a configuração global do Express seja alterada no deploy.
+router.use('/auth', express.json({ limit: '1mb' }), require('./auth.routes'));
 
 router.get('/stats-publicas', async (req, res) => {
   try {
