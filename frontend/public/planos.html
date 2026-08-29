@@ -13,6 +13,9 @@
 :root{--gold:#d4a017;--ink:#101512;--muted:#78827d;--line:#e7ebe8;--bg:#f4f6f4}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,rgba(212,160,23,.13),transparent 34%),var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.plans-wrap{max-width:1220px;margin:auto;padding:42px 22px 70px}.hero{text-align:center;margin-bottom:34px}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(212,160,23,.35);background:rgba(212,160,23,.09);color:#946d00;border-radius:999px;padding:7px 13px;font-size:.72rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase}.hero h1{font-size:clamp(2rem,5vw,3.6rem);font-weight:950;letter-spacing:-.055em;margin:16px 0 10px}.hero p{max-width:650px;margin:auto;color:var(--muted);font-size:1rem}.trial{margin:24px auto 0;display:flex;align-items:center;justify-content:center;gap:10px;color:#176b3a;font-weight:850;font-size:.88rem}.trial i{font-size:1rem}.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}.plan{position:relative;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:24px;padding:27px;box-shadow:0 14px 40px rgba(20,28,23,.07);transition:.2s transform,.2s box-shadow;display:flex;flex-direction:column}.plan:hover{transform:translateY(-5px);box-shadow:0 22px 55px rgba(20,28,23,.12)}.plan.featured{border:1px solid rgba(212,160,23,.65);box-shadow:0 22px 60px rgba(130,95,10,.15);transform:translateY(-8px)}.badge{position:absolute;top:16px;right:16px;background:var(--gold);color:#171207;border-radius:999px;padding:6px 10px;font-size:.62rem;font-weight:950;text-transform:uppercase}.icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:#f0f3f1;color:#313b36;font-size:1.15rem}.plan.featured .icon{background:rgba(212,160,23,.13);color:#9a7100}.plan h2{font-size:1.35rem;font-weight:900;margin:19px 0 6px}.desc{color:var(--muted);font-size:.83rem;min-height:42px}.price{margin:20px 0 5px;font-weight:950;letter-spacing:-.04em;font-size:2.25rem}.price small{font-size:.8rem;color:var(--muted);font-weight:700}.limits{font-size:.75rem;font-weight:800;color:#53605a;margin-bottom:19px}.features{border-top:1px solid var(--line);padding-top:17px;display:grid;gap:10px;margin-bottom:23px}.features div{font-size:.79rem;color:#39443f;display:flex;gap:9px}.features i{color:#2f8a55;margin-top:2px}.cta{margin-top:auto;width:100%;border:0;border-radius:13px;padding:13px 16px;font-weight:900;background:#18201c;color:#fff;transition:.2s}.cta:hover{filter:brightness(1.08)}.featured .cta{background:linear-gradient(135deg,#d4a017,#b98200);color:#171207}.compare{margin-top:46px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 12px 35px rgba(20,28,23,.05)}.compare h3{text-align:center;font-size:1.15rem;font-weight:900;margin-bottom:20px}.compare-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);font-size:.76rem}.compare-grid>div{padding:11px 8px;border-bottom:1px solid #edf0ee}.compare-grid .head{font-weight:900;background:#f7f8f7}.compare-grid .yes{color:#2f8a55;text-align:center}.note{text-align:center;color:#7a847f;font-size:.72rem;margin-top:22px}@media(max-width:900px){.plans{grid-template-columns:1fr}.plan.featured{transform:none}.compare{overflow:auto}.compare-grid{min-width:650px}}@media(max-width:520px){.plans-wrap{padding:25px 14px 50px}.plan{padding:22px}.hero h1{font-size:2.2rem}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="js/services/api.js"></script>
+<script src="js/services/auth.js"></script>
 </head>
 <body>
 <div class="plans-wrap">
@@ -39,7 +42,40 @@
 <section class="compare"><h3>Compare os recursos</h3><div class="compare-grid"><div class="head">Recurso</div><div class="head">Individual</div><div class="head">Profissional</div><div class="head">Empresa</div><div>Dashboard</div><div class="yes">✓</div><div class="yes">✓</div><div class="yes">✓</div><div>Viagens e telemetria</div><div class="yes">✓</div><div class="yes">✓</div><div class="yes">✓</div><div>Gestão de equipe</div><div>—</div><div class="yes">✓</div><div class="yes">✓</div><div>Financeiro e relatórios</div><div class="yes">✓</div><div class="yes">✓</div><div class="yes">✓</div><div>Central de operações</div><div>—</div><div class="yes">✓</div><div class="yes">✓</div><div>Permissões avançadas</div><div>—</div><div>—</div><div class="yes">✓</div></div><p class="note">O período de 7 dias grátis é destinado a novos usuários. A contratação será apresentada na próxima etapa.</p></section>
 </div>
 <script>
-document.querySelectorAll('[data-plan]').forEach(btn=>btn.addEventListener('click',()=>{const plano=btn.dataset.plan;localStorage.setItem('felipinho_plano_escolhido',plano);window.location.href='cadastro.html?plano='+encodeURIComponent(plano)}));
+(async function () {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') === 'sucesso') {
+    await Swal.fire({ icon:'success', title:'Pagamento concluído!', text:'Estamos atualizando sua assinatura. Aguarde alguns segundos e atualize esta página.' });
+    history.replaceState({}, '', 'planos.html');
+  }
+  if (params.get('checkout') === 'cancelado') {
+    Swal.fire({ icon:'info', title:'Checkout cancelado', text:'Nenhuma cobrança foi realizada.' });
+    history.replaceState({}, '', 'planos.html');
+  }
+
+  document.querySelectorAll('[data-plan]').forEach(btn => btn.addEventListener('click', async () => {
+    const plano = btn.dataset.plan;
+    localStorage.setItem('felipinho_plano_escolhido', plano);
+
+    if (!window.AuthService || !AuthService.estaAutenticado()) {
+      window.location.href = 'index.html?plano=' + encodeURIComponent(plano);
+      return;
+    }
+
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo checkout...';
+
+    try {
+      const dados = await ApiService.post('/assinaturas/checkout', { planoCodigo: plano });
+      window.location.href = dados.checkoutUrl;
+    } catch (erro) {
+      Swal.fire({ icon:'error', title:'Não foi possível abrir o checkout', text:erro.message });
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  }));
+})();
 </script>
 </body>
 </html>
