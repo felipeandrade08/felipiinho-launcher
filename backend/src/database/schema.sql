@@ -3,11 +3,36 @@
 -- Transportadora Virtual para Euro Truck Simulator 2
 -- =====================================================================
 
-CREATE DATABASE IF NOT EXISTS gr_expresso
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
+CREATE DATABASE IF NOT EXISTS gr_expresso CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE gr_expresso;
+
+-- ---------------------------------------------------------------------
+-- TABELA: empresas (empresas virtuais públicas)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS empresas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(120) NOT NULL,
+  slug VARCHAR(140) NOT NULL UNIQUE,
+  descricao TEXT,
+  logo_url VARCHAR(500),
+  capa_url VARCHAR(500),
+  localizacao VARCHAR(120),
+  caminhoes INT NOT NULL DEFAULT 0,
+  motoristas INT NOT NULL DEFAULT 0,
+  data_fundacao DATE NULL,
+  discord VARCHAR(255),
+  instagram VARCHAR(255),
+  site VARCHAR(255),
+  pontuacao_ranking DECIMAL(12,2) NOT NULL DEFAULT 0,
+  posicao_ranking INT NULL,
+  destaque BOOLEAN NOT NULL DEFAULT FALSE,
+  status ENUM('ativa', 'pausada', 'suspensa') NOT NULL DEFAULT 'ativa',
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_empresas_status (status),
+  INDEX idx_empresas_ranking (pontuacao_ranking),
+  INDEX idx_empresas_destaque (destaque)
+) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
 -- TABELA: motoristas
@@ -121,42 +146,27 @@ CREATE TABLE IF NOT EXISTS viagens (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
--- TABELA: abastecimentos
+-- TABELAS: abastecimentos, despesas, notas_fiscais, financeiro
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS abastecimentos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   caminhao_id INT NOT NULL,
   motorista_id INT NULL,
   viagem_id INT NULL,
-  posto VARCHAR(120),
-  litros DECIMAL(8,2) NOT NULL,
-  valor_litro DECIMAL(8,3) NOT NULL,
-  valor_total DECIMAL(12,2) NOT NULL,
-  km_no_momento DECIMAL(12,2) DEFAULT 0,
-  data_abastecimento DATETIME NOT NULL,
-  observacoes TEXT,
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  posto VARCHAR(120), litros DECIMAL(8,2) NOT NULL, valor_litro DECIMAL(8,3) NOT NULL,
+  valor_total DECIMAL(12,2) NOT NULL, km_no_momento DECIMAL(12,2) DEFAULT 0,
+  data_abastecimento DATETIME NOT NULL, observacoes TEXT, criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_abastecimento_caminhao FOREIGN KEY (caminhao_id) REFERENCES caminhoes(id) ON DELETE CASCADE,
   CONSTRAINT fk_abastecimento_motorista FOREIGN KEY (motorista_id) REFERENCES motoristas(id) ON DELETE SET NULL,
   CONSTRAINT fk_abastecimento_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: despesas
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS despesas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   categoria ENUM('manutencao', 'pneus', 'multa', 'pedagio', 'seguro', 'salario', 'administrativa', 'outra') NOT NULL DEFAULT 'outra',
-  descricao VARCHAR(200) NOT NULL,
-  caminhao_id INT NULL,
-  reboque_id INT NULL,
-  motorista_id INT NULL,
-  viagem_id INT NULL,
-  valor DECIMAL(14,2) NOT NULL,
-  data_despesa DATE NOT NULL,
-  forma_pagamento ENUM('dinheiro', 'transferencia', 'cartao', 'outro') DEFAULT 'outro',
-  comprovante_url VARCHAR(255),
-  observacoes TEXT,
+  descricao VARCHAR(200) NOT NULL, caminhao_id INT NULL, reboque_id INT NULL, motorista_id INT NULL, viagem_id INT NULL,
+  valor DECIMAL(14,2) NOT NULL, data_despesa DATE NOT NULL,
+  forma_pagamento ENUM('dinheiro', 'transferencia', 'cartao', 'outro') DEFAULT 'outro', comprovante_url VARCHAR(255), observacoes TEXT,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_despesa_caminhao FOREIGN KEY (caminhao_id) REFERENCES caminhoes(id) ON DELETE SET NULL,
   CONSTRAINT fk_despesa_reboque FOREIGN KEY (reboque_id) REFERENCES reboques(id) ON DELETE SET NULL,
@@ -164,106 +174,49 @@ CREATE TABLE IF NOT EXISTS despesas (
   CONSTRAINT fk_despesa_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: notas_fiscais
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notas_fiscais (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  numero VARCHAR(30) NOT NULL UNIQUE,
-  viagem_id INT NULL,
-  cliente VARCHAR(150) NOT NULL,
-  cnpj_cpf VARCHAR(20),
-  descricao_carga VARCHAR(200),
-  valor_total DECIMAL(14,2) NOT NULL,
-  data_emissao DATE NOT NULL,
-  status ENUM('emitida', 'paga', 'cancelada', 'pendente') NOT NULL DEFAULT 'pendente',
-  arquivo_url VARCHAR(255),
-  observacoes TEXT,
+  id INT AUTO_INCREMENT PRIMARY KEY, numero VARCHAR(30) NOT NULL UNIQUE, viagem_id INT NULL, cliente VARCHAR(150) NOT NULL,
+  cnpj_cpf VARCHAR(20), descricao_carga VARCHAR(200), valor_total DECIMAL(14,2) NOT NULL, data_emissao DATE NOT NULL,
+  status ENUM('emitida', 'paga', 'cancelada', 'pendente') NOT NULL DEFAULT 'pendente', arquivo_url VARCHAR(255), observacoes TEXT,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_nota_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: financeiro (lançamentos manuais / consolidados)
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS financeiro (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tipo ENUM('entrada', 'saida') NOT NULL,
-  categoria VARCHAR(80) NOT NULL,
-  descricao VARCHAR(200) NOT NULL,
-  valor DECIMAL(14,2) NOT NULL,
-  data_lancamento DATE NOT NULL,
-  referencia_tipo ENUM('viagem', 'despesa', 'abastecimento', 'nota_fiscal', 'manual') DEFAULT 'manual',
-  referencia_id INT NULL,
-  observacoes TEXT,
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT AUTO_INCREMENT PRIMARY KEY, tipo ENUM('entrada', 'saida') NOT NULL, categoria VARCHAR(80) NOT NULL,
+  descricao VARCHAR(200) NOT NULL, valor DECIMAL(14,2) NOT NULL, data_lancamento DATE NOT NULL,
+  referencia_tipo ENUM('viagem', 'despesa', 'abastecimento', 'nota_fiscal', 'manual') DEFAULT 'manual', referencia_id INT NULL,
+  observacoes TEXT, criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: integracoes (configuração futura: Telemetria, TrucksBook, Trucky)
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS integracoes (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome ENUM('telemetria_ets2', 'trucksbook', 'trucky') NOT NULL UNIQUE,
-  ativa BOOLEAN NOT NULL DEFAULT FALSE,
-  url_endpoint VARCHAR(255),
-  api_key VARCHAR(255),
-  configuracao_json JSON,
-  ultima_sincronizacao DATETIME NULL,
-  status_conexao ENUM('conectado', 'desconectado', 'erro') DEFAULT 'desconectado',
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ativa BOOLEAN NOT NULL DEFAULT FALSE, url_endpoint VARCHAR(255), api_key VARCHAR(255), configuracao_json JSON,
+  ultima_sincronizacao DATETIME NULL, status_conexao ENUM('conectado', 'desconectado', 'erro') DEFAULT 'desconectado',
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP, atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: telemetria_status (snapshot mais recente de cada motorista,
--- enviado pelo Launcher FELIPINHO LAUNCHER via heartbeat em tempo real)
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS telemetria_status (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  motorista_id INT NOT NULL UNIQUE,
-  caminhao_id INT NULL,
-  viagem_id INT NULL,
-  online BOOLEAN NOT NULL DEFAULT FALSE,
-  perfil_jogo VARCHAR(120),
-  cidade_atual VARCHAR(120),
-  velocidade_kmh DECIMAL(6,1) DEFAULT 0,
-  rpm DECIMAL(8,1) DEFAULT 0,
-  marcha INT DEFAULT 0,
-  nivel_combustivel DECIMAL(5,4) DEFAULT 0 COMMENT '0.0 a 1.0',
-  odometro DECIMAL(12,1) DEFAULT 0,
-  em_viagem BOOLEAN NOT NULL DEFAULT FALSE,
-  ultimo_heartbeat DATETIME NULL,
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  id INT AUTO_INCREMENT PRIMARY KEY, motorista_id INT NOT NULL UNIQUE, caminhao_id INT NULL, viagem_id INT NULL,
+  online BOOLEAN NOT NULL DEFAULT FALSE, perfil_jogo VARCHAR(120), cidade_atual VARCHAR(120), velocidade_kmh DECIMAL(6,1) DEFAULT 0,
+  rpm DECIMAL(8,1) DEFAULT 0, marcha INT DEFAULT 0, nivel_combustivel DECIMAL(5,4) DEFAULT 0, odometro DECIMAL(12,1) DEFAULT 0,
+  em_viagem BOOLEAN NOT NULL DEFAULT FALSE, ultimo_heartbeat DATETIME NULL, criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_telemetria_motorista FOREIGN KEY (motorista_id) REFERENCES motoristas(id) ON DELETE CASCADE,
   CONSTRAINT fk_telemetria_caminhao FOREIGN KEY (caminhao_id) REFERENCES caminhoes(id) ON DELETE SET NULL,
   CONSTRAINT fk_telemetria_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- TABELA: alertas_manutencao (avisos de dano enviados pelo Launcher
--- quando engine/chassis/cabin/wheels atingem um threshold de desgaste)
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS alertas_manutencao (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  caminhao_id INT NOT NULL,
-  motorista_id INT NULL,
-  viagem_id INT NULL,
-  componente ENUM('engine', 'chassis', 'cabin', 'wheels') NOT NULL,
-  nivel_severidade DECIMAL(4,3) NOT NULL COMMENT '0.05, 0.10, 0.20, 0.50...',
-  dano_atual DECIMAL(5,4) NOT NULL,
-  mensagem VARCHAR(255),
-  resolvido BOOLEAN NOT NULL DEFAULT FALSE,
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  id INT AUTO_INCREMENT PRIMARY KEY, caminhao_id INT NOT NULL, motorista_id INT NULL, viagem_id INT NULL,
+  componente ENUM('engine', 'chassis', 'cabin', 'wheels') NOT NULL, nivel_severidade DECIMAL(4,3) NOT NULL,
+  dano_atual DECIMAL(5,4) NOT NULL, mensagem VARCHAR(255), resolvido BOOLEAN NOT NULL DEFAULT FALSE, criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_alerta_caminhao FOREIGN KEY (caminhao_id) REFERENCES caminhoes(id) ON DELETE CASCADE,
   CONSTRAINT fk_alerta_motorista FOREIGN KEY (motorista_id) REFERENCES motoristas(id) ON DELETE SET NULL,
   CONSTRAINT fk_alerta_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- =====================================================================
--- ÍNDICES adicionais para performance
--- =====================================================================
 CREATE INDEX idx_viagens_status ON viagens(status);
 CREATE INDEX idx_viagens_motorista ON viagens(motorista_id);
 CREATE INDEX idx_viagens_data_saida ON viagens(data_saida);
