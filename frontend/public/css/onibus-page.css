@@ -1,0 +1,27 @@
+/* Acabamento premium da frota de ônibus — camada independente */
+#conteudoPagina{padding:28px!important}
+#statsOnibus{gap:12px!important}
+.stat-onibus{border:1px solid #e3e9e5!important;border-radius:16px!important;box-shadow:0 8px 24px rgba(22,31,26,.05)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+.stat-onibus:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(22,31,26,.08)!important}
+.stat-onibus__icone{border-radius:10px!important}
+.card-gr{border:1px solid #e3e9e5!important;border-radius:20px!important;box-shadow:0 10px 30px rgba(22,31,26,.05)!important;overflow:hidden}
+.card-gr__header{padding:18px 20px!important;border-bottom:1px solid #edf0ee!important}
+.card-gr__header h3{font-size:.9rem!important;font-weight:900!important}
+.abas-modshop{padding-top:2px}
+.aba-modshop{border-radius:10px!important;font-size:.65rem!important;padding:8px 13px!important}
+.aba-modshop.ativa{box-shadow:0 5px 14px rgba(20,29,24,.12)}
+.busca-onibus input,.barra-filtros select{border-color:#dfe6e1!important;border-radius:10px!important;box-shadow:none!important}
+.busca-onibus input:focus,.barra-filtros select:focus{border-color:#9ebaa5!important;box-shadow:0 0 0 3px rgba(84,128,96,.08)!important}
+.tabela-gr{margin-bottom:0!important}
+.tabela-gr thead th{background:#f7f9f8!important;color:#77817b!important;font-size:.59rem!important;letter-spacing:.07em!important;text-transform:uppercase!important;border-bottom:1px solid #e8edea!important}
+.tabela-gr tbody td{font-size:.7rem!important;border-bottom-color:#eef1ef!important}
+.tabela-gr tbody tr{transition:background .15s ease!important}
+.tabela-gr tbody tr:hover{background:#fafcfb!important}
+.prefixo-tag{border-radius:7px!important;box-shadow:0 4px 10px rgba(20,29,24,.1)}
+.modshop-tag{border-radius:8px!important}
+.btn-acao{border-radius:9px!important}
+.modal-content{border-radius:20px!important;overflow:hidden;box-shadow:0 25px 70px rgba(20,29,24,.18)!important}
+.modal-header,.modal-footer{border-color:#edf0ee!important}
+.form-control,.form-select{border-radius:10px}
+.paginacao{border-top:1px solid #edf0ee;margin-top:4px;padding-top:14px}
+@media(max-width:700px){#conteudoPagina{padding:18px!important}.stat-onibus{min-width:calc(50% - 6px)}.card-gr__header{align-items:flex-start!important;gap:12px!important}.barra-filtros{display:grid;grid-template-columns:1fr 1fr}.busca-onibus{grid-column:1/-1;max-width:none}.barra-filtros select{width:100%!important}.table-responsive{overflow-x:auto}}
