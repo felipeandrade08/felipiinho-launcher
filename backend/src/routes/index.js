@@ -5,19 +5,12 @@
 const express = require('express');
 const router = express.Router();
 const { exigirAutenticacao, exigirAdmin, exigirAdminOuRH } = require('../middlewares/autenticacao');
+const { contextoConta } = require('../middlewares/contextoConta');
 
-// Rota de verificação de saúde da API (pública, sem autenticação)
-router.get('/health', (req, res) => {
-  res.json({ sucesso: true, mensagem: 'FELIPINHO LAUNCHER API está operacional.', timestamp: new Date().toISOString() });
-});
-
-// Rota pública de recrutamento (motoristas enviam antes de ter conta)
+router.get('/health', (req, res) => res.json({ sucesso: true, mensagem: 'FELIPINHO LAUNCHER API está operacional.', timestamp: new Date().toISOString() }));
 router.use('/recrutamentos', require('./recrutamentos.routes'));
-
-// Rotas de autenticação (algumas públicas, outras autenticadas - ver auth.routes.js)
 router.use('/auth', require('./auth.routes'));
 
-// Rota pública de estatísticas para tela de login
 router.get('/stats-publicas', async (req, res) => {
   try {
     const { pool } = require('../config/database');
@@ -29,13 +22,11 @@ router.get('/stats-publicas', async (req, res) => {
   }
 });
 
-// A partir daqui, todas as rotas exigem usuário autenticado e aprovado.
+// Toda rota autenticada passa a receber req.conta.
 router.use(exigirAutenticacao);
+router.use(contextoConta);
 
-// Conta e planos
 router.use('/planos', require('./planos.routes'));
-
-// Módulos compartilhados entre admin e motorista
 router.use('/viagens', require('./viagens.routes'));
 router.use('/abastecimentos', require('./abastecimentos.routes'));
 router.use('/manutencoes', require('./manutencoes.routes'));
@@ -44,13 +35,11 @@ router.use('/notas-fiscais', require('./notasFiscais.routes'));
 router.use('/motoristas', require('./motoristas.routes'));
 router.use('/telemetria', require('./telemetria.routes'));
 
-// Listagem de caminhões e reboques: qualquer usuário autenticado pode consultar
 const CaminhaoController = require('../controllers/CaminhaoController');
 const ReboqueController = require('../controllers/ReboqueController');
 router.get('/caminhoes', CaminhaoController.listar);
 router.get('/reboques', ReboqueController.listar);
 
-// Módulos exclusivos de administrador/diretoria
 router.use('/dashboard', exigirAdminOuRH, require('./dashboard.routes'));
 router.use('/caminhoes', exigirAdminOuRH, require('./caminhoes.routes'));
 router.use('/reboques', exigirAdminOuRH, require('./reboques.routes'));
