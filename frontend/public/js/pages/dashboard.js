@@ -83,6 +83,36 @@ async function montarDashboardAdmin() {
       </div>
     </div>
 
+    <!-- ETAPA 6: VISÃO DA FROTA -->
+    <div class="row g-3 mt-1">
+      <div class="col-lg-7" data-aos="fade-up">
+        <div class="card-gr visao-frota-card h-100">
+          <div class="card-gr__header">
+            <h3><i class="fa-solid fa-tower-broadcast me-2" style="color:#D4A017"></i>Visão da frota</h3>
+            <span class="badge-live"><span class="badge-live__dot"></span>MONITORAMENTO</span>
+          </div>
+          <div class="card-gr__body">
+            <div class="frota-radar">
+              <div class="frota-radar__header"><small>PAINEL OPERACIONAL</small><strong>Atividade atual da frota</strong></div>
+              <div class="frota-radar__pulse"></div>
+              <div class="frota-radar__legend"><span><i class="fa-solid fa-circle"></i> Em operação</span><span><i class="fa-solid fa-circle"></i> Monitoramento</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5" data-aos="fade-up" data-aos-delay="60">
+        <div class="card-gr h-100">
+          <div class="card-gr__header">
+            <h3>Operação em andamento</h3>
+            <span id="frotaResumo" class="text-muted" style="font-size:.68rem"></span>
+          </div>
+          <div class="card-gr__body" id="listaVisaoFrota">
+            <div class="text-center text-muted py-4" style="font-size:.8rem">Carregando dados da frota...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row g-3 mt-1">
       <div class="col-12" data-aos="fade-up">
         <div class="card-gr" id="cardAlertas" style="display:none;">
@@ -131,6 +161,7 @@ async function montarDashboardAdmin() {
     renderizarTopMotoristas(resumo.top_motoristas);
     renderizarAlertas(resumo.alertas);
     renderizarFeedEntregas(resumo.ultimas_viagens);
+    renderizarVisaoFrota(resumo.ultimas_viagens, resumo.indicadores);
     renderizarHallDaFama(hallFama);
   } catch (erro) {
     console.error(erro);
@@ -809,4 +840,64 @@ function mostrarPopupBoasVindas() {
     showClass: { popup: 'animate__animated animate__fadeInDown animate__faster' },
     hideClass: { popup: 'animate__animated animate__fadeOutUp animate__faster' },
   });
+}
+
+
+// =====================================================================
+// ETAPA 6 — VISÃO DA FROTA (usa dados reais já carregados pelo dashboard)
+// =====================================================================
+function renderizarVisaoFrota(viagens, indicadores) {
+  const radar = document.querySelector('.frota-radar');
+  const lista = document.getElementById('listaVisaoFrota');
+  const resumo = document.getElementById('frotaResumo');
+  if (!radar || !lista) return;
+
+  const emOperacao = (viagens || []).filter(v => v.status === 'em_andamento');
+  const exibidas = emOperacao.length ? emOperacao.slice(0, 4) : (viagens || []).slice(0, 4);
+  const disponiveis = Number(indicadores?.caminhoes_disponiveis || 0);
+  const total = Number(indicadores?.total_caminhoes || 0);
+
+  resumo.textContent = total ? `${disponiveis} disponíveis` : 'Atualização automática';
+  radar.querySelectorAll('.frota-marker').forEach(el => el.remove());
+
+  const posicoes = [
+    { left: '20%', top: '30%' }, { left: '61%', top: '22%' },
+    { left: '68%', top: '64%' }, { left: '30%', top: '68%' }
+  ];
+
+  exibidas.forEach((v, i) => {
+    const marker = document.createElement('div');
+    marker.className = 'frota-marker' + (v.status === 'cancelada' ? ' frota-marker--alerta' : '');
+    marker.style.left = posicoes[i].left;
+    marker.style.top = posicoes[i].top;
+    marker.title = `${v.caminhao_placa || 'Caminhão'} — ${v.origem || ''} → ${v.destino || ''}`;
+    marker.innerHTML = '<i class="fa-solid fa-truck"></i>';
+    radar.appendChild(marker);
+  });
+
+  if (!exibidas.length) {
+    lista.innerHTML = '<div class="text-center text-muted py-4" style="font-size:.78rem"><i class="fa-solid fa-truck-fast d-block mb-2" style="font-size:1.3rem"></i>Nenhuma viagem recente para monitorar.</div>';
+    return;
+  }
+
+  lista.innerHTML = exibidas.map((v, i) => {
+    const emAndamento = v.status === 'em_andamento';
+    const status = emAndamento ? 'EM VIAGEM' : Formatador.statusLabel(v.status).toUpperCase();
+    const progresso = emAndamento ? 68 : (v.status === 'concluida' ? 100 : 35);
+    return `
+      <div class="frota-item">
+        <div class="frota-item__icone"><i class="fa-solid fa-truck"></i></div>
+        <div class="frota-item__info">
+          <strong>${v.caminhao_placa || 'Caminhão'} · ${v.motorista_nome || 'Motorista'}</strong>
+          <span>${v.origem || 'Origem'} <i class="fa-solid fa-arrow-right" style="font-size:.55rem"></i> ${v.destino || 'Destino'}</span>
+          <div class="frota-progress-wrap">
+            <div class="frota-progress-head"><span>Progresso operacional</span><span>${progresso}%</span></div>
+            <div class="frota-progress"><span style="width:${progresso}%"></span></div>
+          </div>
+        </div>
+        <span class="frota-item__status${emAndamento ? '' : ' alerta'}">${status}
+        </span>
+      </div>
+    `;
+  }).join('');
 }
