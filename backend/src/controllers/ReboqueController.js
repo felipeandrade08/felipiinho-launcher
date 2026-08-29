@@ -7,41 +7,11 @@ const asyncHandler = require('../utils/asyncHandler');
 const { sucesso, criado, naoEncontrado, requisicaoInvalida } = require('../utils/respostaPadrao');
 
 const ReboqueController = {
-  listar: asyncHandler(async (req, res) => {
-    const { status, tipo } = req.query;
-    const reboques = await ReboqueModel.listarTodos({ status, tipo });
-    return sucesso(res, reboques);
-  }),
-
-  buscarPorId: asyncHandler(async (req, res) => {
-    const reboque = await ReboqueModel.buscarPorId(req.params.id);
-    if (!reboque) return naoEncontrado(res, 'Reboque não encontrado.');
-    return sucesso(res, reboque);
-  }),
-
-  criar: asyncHandler(async (req, res) => {
-    const { placa } = req.body;
-    if (!placa) return requisicaoInvalida(res, 'O campo "placa" é obrigatório.');
-
-    const reboque = await ReboqueModel.criar(req.body);
-    return criado(res, reboque, 'Reboque cadastrado com sucesso.');
-  }),
-
-  atualizar: asyncHandler(async (req, res) => {
-    const existente = await ReboqueModel.buscarPorId(req.params.id);
-    if (!existente) return naoEncontrado(res, 'Reboque não encontrado.');
-
-    const reboque = await ReboqueModel.atualizar(req.params.id, req.body);
-    return sucesso(res, reboque, 'Reboque atualizado com sucesso.');
-  }),
-
-  excluir: asyncHandler(async (req, res) => {
-    const existente = await ReboqueModel.buscarPorId(req.params.id);
-    if (!existente) return naoEncontrado(res, 'Reboque não encontrado.');
-
-    await ReboqueModel.excluir(req.params.id);
-    return sucesso(res, null, 'Reboque excluído com sucesso.');
-  })
+  listar: asyncHandler(async (req, res) => sucesso(res, await ReboqueModel.listarTodos({ status: req.query.status, tipo: req.query.tipo, contaId: req.conta.id }))),
+  buscarPorId: asyncHandler(async (req, res) => { const item = await ReboqueModel.buscarPorId(req.params.id, req.conta.id); if (!item) return naoEncontrado(res, 'Reboque não encontrado.'); return sucesso(res, item); }),
+  criar: asyncHandler(async (req, res) => { if (!req.body.placa) return requisicaoInvalida(res, 'O campo "placa" é obrigatório.'); return criado(res, await ReboqueModel.criar(req.body, req.conta.id), 'Reboque cadastrado com sucesso.'); }),
+  atualizar: asyncHandler(async (req, res) => { if (!await ReboqueModel.buscarPorId(req.params.id, req.conta.id)) return naoEncontrado(res, 'Reboque não encontrado.'); return sucesso(res, await ReboqueModel.atualizar(req.params.id, req.body, req.conta.id), 'Reboque atualizado com sucesso.'); }),
+  excluir: asyncHandler(async (req, res) => { if (!await ReboqueModel.buscarPorId(req.params.id, req.conta.id)) return naoEncontrado(res, 'Reboque não encontrado.'); await ReboqueModel.excluir(req.params.id, req.conta.id); return sucesso(res, null, 'Reboque excluído com sucesso.'); })
 };
 
 module.exports = ReboqueController;
