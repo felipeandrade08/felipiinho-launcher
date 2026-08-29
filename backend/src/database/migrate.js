@@ -1,9 +1,7 @@
 // =====================================================================
 // FELIPINHO LAUNCHER - Runner de Migrations
-// Executa os arquivos .sql da pasta migrations/ em ordem, usando uma
-// conexão com multipleStatements (necessário para os blocos PREPARE/
-// EXECUTE usados para simular "CREATE INDEX IF NOT EXISTS").
-// Uso: npm run db:migrate
+// Mantém histórico das migrations e permite atualizar bancos que já
+// possuem a estrutura antiga, sem executar novamente migrations antigas.
 // =====================================================================
 
 require('dotenv').config();
@@ -28,23 +26,71 @@ async function migrate() {
   });
 
   try {
+    // Histórico das migrations. O banco existente não possuía essa tabela.
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(255) NOT NULL UNIQUE,
+        aplicado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB;
+    `);
+
     const pastaMigrations = path.join(__dirname, 'migrations');
     const arquivos = fs.readdirSync(pastaMigrations)
       .filter((nome) => nome.endsWith('.sql'))
       .sort();
 
     if (arquivos.length === 0) {
-      console.log('ℹ️  Nenhuma migration encontrada em src/database/migrations/.');
+      console.log('ℹ️ Nenhuma migration encontrada.');
       return;
     }
 
+    // O banco atual já contém as estruturas das migrations 002–007.
+    // Registramos somente esses arquivos no histórico, sem executar SQL
+    // novamente. Isso preserva os dados existentes e evita duplicações.
+    const baselineExistente = [
+      '002_telemetria_launcher.sql',
+      '003_ranking_penalidades.sql',
+      '004_cargos_recrutamento.sql',
+      '004_multa_infracao_transito.sql',
+      '005_abastecimento_pendente.sql',
+      '006_manutencoes.sql',
+      '007_recalcular_fretes.sql'
+    ];
+
+    for (const nome of baselineExistente) {
+      if (arquivos.includes(nome)) {
+        await connection.query(
+          'INSERT IGNORE INTO schema_migrations (nome) VALUES (?)',
+          [nome]
+        );
+      }
+    }
+
     for (const arquivo of arquivos) {
+      const [rows] = await connection.query(
+        'SELECT id FROM schema_migrations WHERE nome = ? LIMIT 1',
+        [arquivo]
+      );
+
+      if (rows.length > 0) {
+        console.log(`⏭️ ${arquivo} já registrada/aplicada.`);
+        continue;
+      }
+
       console.log(`📦 Aplicando ${arquivo}...`);
-      let sql = fs.readFileSync(path.join(pastaMigrations, arquivo), 'utf8').replace(/\r\n/g, '\n');
+      let sql = fs.readFileSync(path.join(pastaMigrations, arquivo), 'utf8')
+        .replace(/\r\n/g, '\n');
+
       if (nomeBanco !== 'gr_expresso') {
         sql = sql.replace(/gr_expresso/g, nomeBanco);
       }
+
       await connection.query(sql);
+      await connection.query(
+        'INSERT INTO schema_migrations (nome) VALUES (?)',
+        [arquivo]
+      );
       console.log(`✅ ${arquivo} aplicada com sucesso.\n`);
     }
 
