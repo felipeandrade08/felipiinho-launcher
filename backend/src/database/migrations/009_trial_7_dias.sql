@@ -3,14 +3,56 @@
 -- Migration 009
 -- =====================================================================
 
--- Controle do período de teste na assinatura.
-ALTER TABLE assinaturas
-  ADD COLUMN IF NOT EXISTS trial_inicio DATETIME NULL AFTER status,
-  ADD COLUMN IF NOT EXISTS trial_fim DATETIME NULL AFTER trial_inicio,
-  ADD COLUMN IF NOT EXISTS trial_usado BOOLEAN NOT NULL DEFAULT FALSE AFTER trial_fim;
+-- MySQL/Railway: ALTER TABLE ... ADD COLUMN IF NOT EXISTS não é usado.
+-- A existência das colunas é verificada via INFORMATION_SCHEMA.
 
--- Novas assinaturas podem iniciar em trial.
--- A aplicação deve preencher trial_inicio/trial_fim ao criar a assinatura.
+SET @db = DATABASE();
+
+SET @sql = IF(
+  EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'assinaturas' AND COLUMN_NAME = 'trial_inicio'
+  ),
+  'SELECT 1',
+  'ALTER TABLE assinaturas ADD COLUMN trial_inicio DATETIME NULL AFTER status'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = IF(
+  EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'assinaturas' AND COLUMN_NAME = 'trial_fim'
+  ),
+  'SELECT 1',
+  'ALTER TABLE assinaturas ADD COLUMN trial_fim DATETIME NULL AFTER trial_inicio'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = IF(
+  EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'assinaturas' AND COLUMN_NAME = 'trial_usado'
+  ),
+  'SELECT 1',
+  'ALTER TABLE assinaturas ADD COLUMN trial_usado BOOLEAN NOT NULL DEFAULT FALSE AFTER trial_fim'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Índice do fim do trial, também de forma compatível com versões sem
+-- CREATE INDEX IF NOT EXISTS.
+SET @idx_exists = (
+  SELECT COUNT(1)
+  FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = @db
+    AND TABLE_NAME = 'assinaturas'
+    AND INDEX_NAME = 'idx_assinaturas_trial_fim'
+);
+SET @sql = IF(
+  @idx_exists = 0,
+  'CREATE INDEX idx_assinaturas_trial_fim ON assinaturas (trial_fim)',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- =====================================================================
 -- REGRA DE NEGÓCIO
@@ -22,5 +64,3 @@ ALTER TABLE assinaturas
 -- Durante o trial, a conta utiliza os recursos do plano escolhido.
 -- Após trial_fim, o acesso pago depende de uma assinatura ativa.
 -- =====================================================================
-
-CREATE INDEX idx_assinaturas_trial_fim ON assinaturas (trial_fim);
