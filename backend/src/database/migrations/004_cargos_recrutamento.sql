@@ -2,13 +2,14 @@
 -- FELIPINHO LAUNCHER - Migration 004: Cargos, Recrutamento e Progressão
 -- =====================================================================
 
--- 1. Adiciona coluna "cargo" em usuarios (Diretoria, RH, Motorista Novato, Motorista)
+-- 1. Atualiza o tipo/cargo dos usuários
 ALTER TABLE usuarios
   MODIFY COLUMN tipo ENUM('admin','diretoria','rh','motorista') NOT NULL DEFAULT 'motorista';
 
--- 2. Adiciona coluna "nivel_motorista" em motoristas (novato → motorista)
+-- 2. Adiciona nível do motorista
+-- MySQL/MariaDB usado no ambiente não aceita "ADD COLUMN IF NOT EXISTS".
 ALTER TABLE motoristas
-  ADD COLUMN IF NOT EXISTS nivel ENUM('novato','motorista') NOT NULL DEFAULT 'novato';
+  ADD COLUMN nivel ENUM('novato','motorista') NOT NULL DEFAULT 'novato';
 
 -- 3. Tabela de solicitações de recrutamento (pré-cadastro)
 CREATE TABLE IF NOT EXISTS recrutamentos (
@@ -25,5 +26,7 @@ CREATE TABLE IF NOT EXISTS recrutamentos (
   atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- índices
-CREATE INDEX IF NOT EXISTS idx_recrutamentos_status ON recrutamentos(status);
+-- O controle de migrations garante que esta migration seja executada uma única vez.
+-- Portanto não usamos "CREATE INDEX IF NOT EXISTS", que não é suportado por algumas
+-- versões MySQL/MariaDB.
+CREATE INDEX idx_recrutamentos_status ON recrutamentos(status);
