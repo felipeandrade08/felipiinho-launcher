@@ -65,11 +65,8 @@ body:not(:has(.tela-login)) { background:linear-gradient(135deg,#eef1ef 0%,#e7eb
 
 /* Login: aparência de cabine/cockpit */
 .tela-login { position:relative; }
-#fundo-pagina { filter:saturate(.88) contrast(1.06); }
-.tela-login::after {
-  content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
-  background:linear-gradient(90deg,rgba(4,7,6,.10) 0%,rgba(4,7,6,.18) 55%,rgba(4,7,6,.72) 100%),linear-gradient(0deg,rgba(0,0,0,.32),transparent 42%);
-}
+#fundo-pagina { filter:none; }
+.tela-login::after { display:none!important; }
 .login-lateral,.login-form-area { z-index:3; }
 .login-lateral { padding-left:clamp(34px,6vw,92px); }
 .logo-img { width:54px;height:54px; border-radius:14px; }
