@@ -17,6 +17,7 @@ router.use('/manutencoes', require('./manutencoes.routes'));
 router.use('/notas-fiscais', require('./notasFiscais.routes'));
 router.use('/assinaturas', require('./assinaturas.routes'));
 router.use('/recrutamentos', require('./recrutamentos.routes'));
+router.use('/contratacoes', require('./contratacoes.routes'));
 // Rotas opcionais: os arquivos não existem nesta versão do backend.
 // Ranking e multas não devem impedir o servidor de iniciar.
 router.use('/telemetria', require('./telemetria.routes'));
