@@ -2,7 +2,6 @@
 // FELIPINHO LAUNCHER - Componente de Layout (Sidebar + Topbar)
 // =====================================================================
 
-// Carrega a camada visual sem alterar a lógica existente.
 (function carregarVisualRealista() {
   if (document.querySelector('link[data-realistic-ui]')) return;
   const link = document.createElement('link');
@@ -36,6 +35,7 @@ const MENU_GESTOR = [
   ]},
   { grupo: 'Sistema', itens: [
     { id:'aprovacoes',label:'Aprovações de Acesso',icone:'fa-user-check',href:'aprovacoes.html',badge:'pendentes' },
+    { id:'solicitacoes-empresas',label:'Solicitações de Empresas',icone:'fa-building-circle-check',href:'solicitacoes-empresas.html',badge:'empresasPendentes' },
     { id:'recrutamentos',label:'Recrutamentos',icone:'fa-user-plus',href:'recrutamentos.html' },
     { id:'integracoes',label:'Integrações',icone:'fa-plug',href:'integracoes.html' },
     { id:'downloads',label:'Downloads',icone:'fa-download',href:'downloads.html' }
@@ -102,9 +102,13 @@ function montarLayout({paginaAtiva,titulo,subtitulo}){
     });
   });
   if(AuthService.ehRH())carregarBadgePendentes();
+  if(AuthService.ehAdmin())carregarBadgeEmpresasPendentes();
 }
 
 async function carregarBadgePendentes(){try{const pendentes=await ApiService.get('/auth/usuarios/pendentes');if(pendentes.length>0){const badge=document.getElementById('badge-pendentes'),bolha=document.getElementById('bolhaNotificacao');if(badge){badge.textContent=pendentes.length;badge.style.display='inline-flex';}if(bolha)bolha.style.display='block';}}catch(erro){console.error('Erro ao carregar pendências:',erro);}}
+
+async function carregarBadgeEmpresasPendentes(){try{const pendentes=await ApiService.get('/empresas/solicitacoes');const badge=document.getElementById('badge-empresasPendentes');if(badge&&pendentes.length>0){badge.textContent=pendentes.length;badge.style.display='inline-flex';}}catch(erro){console.warn('Erro ao carregar solicitações de empresas:',erro.message);}}
+
 window.montarLayout=montarLayout;
 
 (function initNotificacoes(){
