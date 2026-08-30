@@ -50,7 +50,12 @@ app.use(cors({
 // Logs de requisições (formato 'dev' apenas fora de produção)
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Webhook Stripe precisa receber o corpo RAW para validação da assinatura.\n// Esta rota deve vir ANTES do express.json().\napp.use('/api/webhooks/stripe', require('./routes/stripeWebhook.routes'));\n\n// Parsing do corpo das demais requisições\napp.use(express.json({ limit: '10mb' }));
+// Webhook Stripe precisa receber o corpo RAW para validação da assinatura.
+// Esta rota deve vir ANTES do express.json().
+app.use('/api/webhooks/stripe', require('./routes/stripeWebhook.routes'));
+
+// Parsing do corpo das demais requisições
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Limitação de requisições (proteção básica contra abuso)
