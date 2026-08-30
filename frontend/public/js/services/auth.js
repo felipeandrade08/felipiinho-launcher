@@ -5,19 +5,33 @@
 const CHAVE_TOKEN = 'gr_expresso_token';
 const CHAVE_USUARIO = 'gr_expresso_usuario';
 
+// Mantemos compatibilidade com sessões antigas em sessionStorage e usamos
+// localStorage como persistência para o login não desaparecer ao trocar de
+// página/aba ou ao reabrir o sistema.
+function lerArmazenamento(chave) {
+  return sessionStorage.getItem(chave) || localStorage.getItem(chave);
+}
+
 const AuthService = {
   salvarSessao(token, usuario) {
     sessionStorage.setItem(CHAVE_TOKEN, token);
     sessionStorage.setItem(CHAVE_USUARIO, JSON.stringify(usuario));
+    localStorage.setItem(CHAVE_TOKEN, token);
+    localStorage.setItem(CHAVE_USUARIO, JSON.stringify(usuario));
   },
 
   obterToken() {
-    return sessionStorage.getItem(CHAVE_TOKEN);
+    return lerArmazenamento(CHAVE_TOKEN);
   },
 
   obterUsuario() {
-    const bruto = sessionStorage.getItem(CHAVE_USUARIO);
-    return bruto ? JSON.parse(bruto) : null;
+    const bruto = lerArmazenamento(CHAVE_USUARIO);
+    if (!bruto) return null;
+    try {
+      return JSON.parse(bruto);
+    } catch (_) {
+      return null;
+    }
   },
 
   estaAutenticado() {
@@ -60,6 +74,8 @@ const AuthService = {
   encerrarSessao() {
     sessionStorage.removeItem(CHAVE_TOKEN);
     sessionStorage.removeItem(CHAVE_USUARIO);
+    localStorage.removeItem(CHAVE_TOKEN);
+    localStorage.removeItem(CHAVE_USUARIO);
   },
 
   protegerPagina() {
