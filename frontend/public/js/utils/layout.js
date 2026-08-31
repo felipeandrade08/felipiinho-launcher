@@ -42,18 +42,26 @@ const MENU_GESTOR = [
   ]}
 ];
 
-const MENU_MOTORISTA = [{ grupo:'Minha Área', itens:[
-  {id:'dashboard',label:'Meu Painel',icone:'fa-gauge-high',href:'dashboard.html'},
-  {id:'ao-vivo',label:'Ao Vivo',icone:'fa-satellite-dish',href:'ao-vivo.html'},
-  {id:'onibus',label:'Frota de Ônibus',icone:'fa-bus-simple',href:'onibus.html'},
-  {id:'viagens',label:'Minhas Viagens',icone:'fa-route',href:'viagens.html'},
-  {id:'abastecimentos',label:'Meus Abastecimentos',icone:'fa-gas-pump',href:'abastecimentos.html'},
-  {id:'manutencoes',label:'Minhas Manutenções',icone:'fa-screwdriver-wrench',href:'manutencoes.html'},
-  {id:'notas-fiscais',label:'Minhas Notas Fiscais',icone:'fa-file-invoice',href:'notas-fiscais.html'},
-  {id:'ranking',label:'Ranking de Motoristas',icone:'fa-trophy',href:'ranking.html'},
-  {id:'mapa',label:'Mapa das Entregas',icone:'fa-map-location-dot',href:'mapa.html'},
-  {id:'downloads',label:'Downloads',icone:'fa-download',href:'downloads.html'}
-]}];
+const MENU_MOTORISTA = [
+  { grupo:'Meu Painel', itens:[
+    {id:'dashboard',label:'Visão Geral',icone:'fa-gauge-high',href:'dashboard.html'},
+    {id:'viagens',label:'Minhas Viagens',icone:'fa-route',href:'viagens.html'},
+    {id:'ao-vivo',label:'Minha Telemetria',icone:'fa-satellite-dish',href:'ao-vivo.html'}
+  ]},
+  { grupo:'Meu Veículo', itens:[
+    {id:'caminhoes',label:'Meu Caminhão',icone:'fa-truck',href:'caminhoes.html'},
+    {id:'abastecimentos',label:'Meus Abastecimentos',icone:'fa-gas-pump',href:'abastecimentos.html'},
+    {id:'manutencoes',label:'Minhas Manutenções',icone:'fa-screwdriver-wrench',href:'manutencoes.html'}
+  ]},
+  { grupo:'Meu Histórico', itens:[
+    {id:'despesas',label:'Minhas Despesas',icone:'fa-receipt',href:'despesas.html'},
+    {id:'notas-fiscais',label:'Minhas Notas Fiscais',icone:'fa-file-invoice',href:'notas-fiscais.html'},
+    {id:'ranking',label:'Meu Ranking',icone:'fa-trophy',href:'ranking.html'}
+  ]},
+  { grupo:'Sistema', itens:[
+    {id:'downloads',label:'Baixar o Launcher',icone:'fa-download',href:'downloads.html'}
+  ]}
+];
 
 function obterMenuAtual(){return AuthService.ehGestor()?MENU_GESTOR:MENU_MOTORISTA;}
 
@@ -66,8 +74,8 @@ function renderizarSidebar(paginaAtiva){
     </a>`).join('')}`).join('');
   return `<aside class="sidebar" id="sidebarPrincipal">
     <div class="sidebar-marca"><img src="img/logo/logo-gr-expresso.png" alt="FELIPINHO LAUNCHER" class="sidebar-marca__icone-img">
-      <div class="sidebar-marca__texto"><span class="sidebar-marca__nome">FELIPINHO LAUNCHER</span><span class="sidebar-marca__sub">ETS2 Logística</span></div>
-    </div><nav class="sidebar-nav">${grupos}</nav><div class="sidebar-rodape">FELIPINHO LAUNCHER v1.0 &middot; Transportadora Virtual</div>
+      <div class="sidebar-marca__texto"><span class="sidebar-marca__nome">FELIPINHO LAUNCHER</span><span class="sidebar-marca__sub">Seu painel de telemetria</span></div>
+    </div><nav class="sidebar-nav">${grupos}</nav><div class="sidebar-rodape">FELIPINHO LAUNCHER v1.0 &middot; Painel pessoal</div>
   </aside><div class="overlay-sidebar" id="overlaySidebar"></div>`;
 }
 
