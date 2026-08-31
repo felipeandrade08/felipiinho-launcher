@@ -24,7 +24,58 @@ function mostrarTela(id) {
 
   document.getElementById('formLogin')?.addEventListener('submit', fazerLogin);
   document.getElementById('formCadastro')?.addEventListener('submit', fazerCadastro);
+  carregarRankingHome();
 })();
+
+async function carregarRankingHome() {
+  const lista = document.getElementById('rankingHomeLista');
+  if (!lista) return;
+
+  try {
+    const base = typeof API_BASE_URL !== 'undefined'
+      ? API_BASE_URL
+      : (window.GR_API_URL || '/api');
+
+    const resposta = await fetch(`${base}/ranking-publico?limite=3`);
+    const corpo = await resposta.json();
+    if (!resposta.ok || !corpo.sucesso) throw new Error('Ranking indisponível');
+
+    const dados = corpo.dados;
+    const ranking = dados.ranking || [];
+    const status = document.getElementById('rankingHomeStatus');
+    const rodape = document.getElementById('rankingHomeRodape');
+
+    if (status) {
+      status.textContent = dados.premio_habilitado
+        ? '🏆 PREMIAÇÃO HABILITADA'
+        : `${dados.total_participantes}/10 PARTICIPANTES`;
+    }
+
+    if (!ranking.length) {
+      lista.innerHTML = '<div class="ranking-home-item"><span class="ranking-home-pos">🏁</span><span class="ranking-home-name">Seja o primeiro a entrar no ranking!</span><span class="ranking-home-km">0 km</span></div>';
+    } else {
+      const medalhas = ['🥇', '🥈', '🥉'];
+      lista.innerHTML = ranking.map((m, i) => `
+        <div class="ranking-home-item">
+          <span class="ranking-home-pos">${medalhas[i] || (i + 1) + 'º'}</span>
+          <span class="ranking-home-name">${m.apelido || m.nome}</span>
+          <span class="ranking-home-km">${Number(m.km_mes || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km</span>
+        </div>
+      `).join('');
+    }
+
+    if (rodape) {
+      rodape.textContent = dados.premio_habilitado
+        ? 'Com 10 ou mais participantes ativos, o 1º lugar pode concorrer à premiação futura.'
+        : `Faltam ${dados.faltam_para_premio} participante(s) ativos para habilitar uma futura premiação.`;
+    }
+  } catch (erro) {
+    console.warn('[Home] Ranking indisponível:', erro.message);
+    lista.innerHTML = '<div class="ranking-home-item"><span class="ranking-home-pos">🏆</span><span class="ranking-home-name">Ranking em breve</span><span class="ranking-home-km"></span></div>';
+    const status = document.getElementById('rankingHomeStatus');
+    if (status) status.textContent = 'EM BREVE';
+  }
+}
 
 async function fazerLogin(evento) {
   evento.preventDefault();
