@@ -5,6 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const AbastecimentoController = require('../controllers/AbastecimentoController');
+const { exigirAutenticacao } = require('../middlewares/autenticacao');
+
+// Todas as operações de abastecimento dependem de req.usuario.
+router.use(exigirAutenticacao);
 
 router.get('/total-por-mes',        AbastecimentoController.totalPorMes);
 router.get('/postos-credenciados',  AbastecimentoController.listarPostosCredenciados);
