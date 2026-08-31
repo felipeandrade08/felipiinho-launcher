@@ -28,6 +28,7 @@ function mostrarTela(id) {
 
 async function fazerLogin(evento) {
   evento.preventDefault();
+
   const email = document.getElementById('campoEmailLogin').value.trim();
   const senha = document.getElementById('campoSenhaLogin').value;
   const botao = document.getElementById('btnEntrar');
@@ -66,12 +67,20 @@ async function fazerCadastro(evento) {
   const botao = document.getElementById('btnCadastrar');
 
   if (!nome || !email || !senha) {
-    Swal.fire({ icon: 'warning', title: 'Preencha os campos obrigatórios', text: 'Nome, e-mail e senha são necessários.' });
+    Swal.fire({
+      icon: 'warning',
+      title: 'Preencha os campos obrigatórios',
+      text: 'Nome, e-mail e senha são necessários.'
+    });
     return;
   }
 
   if (senha.length < 6) {
-    Swal.fire({ icon: 'warning', title: 'Senha muito curta', text: 'A senha precisa ter pelo menos 6 caracteres.' });
+    Swal.fire({
+      icon: 'warning',
+      title: 'Senha muito curta',
+      text: 'A senha precisa ter pelo menos 6 caracteres.'
+    });
     return;
   }
 
@@ -79,19 +88,26 @@ async function fazerCadastro(evento) {
   botao.innerHTML = 'Criando sua conta... <i class="fa-solid fa-spinner fa-spin"></i>';
 
   try {
+    // O backend já cria o usuário como APROVADO e o motorista como ATIVO.
     await ApiService.post('/auth/registrar', { nome, email, senha, telefone, cnh });
-    Swal.fire({
-      icon: 'success',
-      title: 'Conta criada com sucesso!',
-      text: 'O FELIPINHO LAUNCHER está gratuito. Agora você já pode entrar no sistema.',
-      confirmButtonColor: '#0B0B0B'
-    });
-    document.getElementById('formCadastro').reset();
-    mostrarTela('telaLogin');
-    document.getElementById('campoEmailLogin').value = email;
+
+    // Faz login automaticamente: cadastro concluído = sistema liberado.
+    const resultadoLogin = await ApiService.post('/auth/login', { email, senha });
+    AuthService.salvarSessao(resultadoLogin.token, resultadoLogin.usuario);
+
+    // Esta flag faz o dashboard mostrar o onboarding do Launcher somente
+    // para quem acabou de criar a conta.
+    localStorage.setItem('felipinho_novo_usuario', '1');
+
+    window.location.href = 'dashboard.html';
   } catch (erro) {
     console.error('[Cadastro]', erro);
-    Swal.fire({ icon: 'error', title: 'Não foi possível criar sua conta', text: erro.message, confirmButtonColor: '#0B0B0B' });
+    Swal.fire({
+      icon: 'error',
+      title: 'Não foi possível criar sua conta',
+      text: erro.message || 'Tente novamente em instantes.',
+      confirmButtonColor: '#0B0B0B'
+    });
   } finally {
     botao.disabled = false;
     botao.innerHTML = 'Criar minha conta grátis <i class="fa-solid fa-user-plus"></i>';
