@@ -16,7 +16,7 @@
 .tela{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:1fr 440px}
 .apresentacao{padding:8vw;display:flex;flex-direction:column;justify-content:center}.marca{display:flex;align-items:center;gap:14px;margin-bottom:42px}.marca img{width:58px;height:58px;border-radius:16px;object-fit:cover}.marca strong{letter-spacing:.08em}.marca small{display:block;color:var(--verde-limao);margin-top:4px}
 h1{font-family:var(--fonte-display);font-size:clamp(2.8rem,5vw,4.8rem);line-height:1.02;margin:0 0 20px}.destaque{color:var(--verde-limao)}.apresentacao p{max-width:620px;color:rgba(255,255,255,.72);font-size:1rem;line-height:1.7}
-.beneficios{display:flex;gap:22px;margin-top:28px;flex-wrap:wrap}.beneficio{font-size:.78rem;color:rgba(255,255,255,.62)}.beneficio i{color:var(--verde-limao);margin-right:6px}
+.beneficios{display:flex;gap:22px;margin-top:28px;flex-wrap:wrap}.ranking-home{margin-top:30px;max-width:620px;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(5,12,8,.55);backdrop-filter:blur(10px)}.ranking-home-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.ranking-home-head strong{font-size:.82rem;letter-spacing:.06em}.ranking-home-head span{font-size:.68rem;color:var(--verde-limao);font-weight:800}.ranking-home-list{display:grid;gap:7px}.ranking-home-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:rgba(255,255,255,.045)}.ranking-home-pos{font-weight:900;color:var(--verde-limao)}.ranking-home-name{font-size:.82rem;font-weight:700}.ranking-home-km{font-size:.75rem;color:rgba(255,255,255,.7);font-weight:800}.ranking-home-foot{margin-top:12px;font-size:.7rem;color:rgba(255,255,255,.52)}.beneficio{font-size:.78rem;color:rgba(255,255,255,.62)}.beneficio i{color:var(--verde-limao);margin-right:6px}
 .area-form{display:flex;align-items:center;justify-content:center;padding:30px;background:rgba(4,10,7,.4);backdrop-filter:blur(12px)}.card-login{width:100%;max-width:390px;background:rgba(7,14,11,.92);border:1px solid rgba(212,160,23,.2);border-radius:24px;padding:38px;box-shadow:0 30px 80px rgba(0,0,0,.45)}.card-login-titulo{font-weight:800;font-size:1.5rem}.card-login-subtitulo{color:rgba(255,255,255,.48);font-size:.85rem;margin-bottom:28px}.alternar-tela{display:none}.alternar-tela.ativa{display:block}.campo-grupo{margin-bottom:15px}.campo-label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.48);font-weight:700;margin-bottom:7px}.campo-input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.05);color:#fff;outline:none}.campo-input:focus{border-color:var(--verde-limao)}.btn-entrar{width:100%;padding:13px;border:0;border-radius:12px;background:var(--verde-limao);color:#0b0b0b;font-weight:800;cursor:pointer}.divisor{display:flex;align-items:center;gap:12px;margin:20px 0;color:rgba(255,255,255,.25);font-size:.72rem}.divisor:before,.divisor:after{content:'';height:1px;background:rgba(255,255,255,.1);flex:1}.texto-link-central{text-align:center;color:rgba(255,255,255,.4);font-size:.78rem;margin-top:18px}.link-form{color:var(--verde-limao);text-decoration:none;font-weight:700}.gratuito{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.18);color:rgba(255,255,255,.75);font-size:.75rem;margin-bottom:20px}.gratuito i{color:var(--verde-limao)}
 @media(max-width:900px){.tela{grid-template-columns:1fr}.apresentacao{display:none}.area-form{min-height:100vh}}
 </style>
@@ -29,6 +29,16 @@ h1{font-family:var(--fonte-display);font-size:clamp(2.8rem,5vw,4.8rem);line-heig
 <h1>Sua jornada.<br><span class="destaque">Seu controle.</span><br>Sem complicação.</h1>
 <p>Controle suas viagens, quilômetros, abastecimentos, despesas e desempenho em um único lugar.</p>
 <div class="beneficios"><span class="beneficio"><i class="fa-solid fa-check"></i>Uso individual</span><span class="beneficio"><i class="fa-solid fa-check"></i>100% gratuito</span><span class="beneficio"><i class="fa-solid fa-check"></i>Pronto para usar</span></div>
+<div class="ranking-home" id="rankingHome">
+  <div class="ranking-home-head">
+    <strong><i class="fa-solid fa-trophy" style="color:var(--verde-limao);margin-right:7px"></i>RANKING DE QUILOMETRAGEM</strong>
+    <span id="rankingHomeStatus">CARREGANDO...</span>
+  </div>
+  <div class="ranking-home-list" id="rankingHomeLista">
+    <div class="ranking-home-item"><span class="ranking-home-pos">—</span><span class="ranking-home-name">Carregando participantes...</span><span class="ranking-home-km"></span></div>
+  </div>
+  <div class="ranking-home-foot" id="rankingHomeRodape">O ranking do mês é definido pela quilometragem concluída.</div>
+</div>
 </section>
 <section class="area-form"><div style="width:100%;max-width:390px">
 <div id="telaLogin" class="alternar-tela ativa card-login">
