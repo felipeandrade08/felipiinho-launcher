@@ -5,6 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const ViagemController = require('../controllers/ViagemController');
+const { exigirAutenticacao } = require('../middlewares/autenticacao');
+
+// Todas as operações de viagens dependem de req.usuario.
+router.use(exigirAutenticacao);
 
 router.get('/mapa', ViagemController.mapaEntregas);
 router.get('/', ViagemController.listar);
