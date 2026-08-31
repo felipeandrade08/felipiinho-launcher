@@ -443,14 +443,39 @@ RankingModel.rankingMensalKm = async function(limite = 50) {
      LIMIT ${limiteSeguro}`
   );
 
+  const agora = new Date();
+  const inicioTemporada = new Date(agora.getFullYear(), agora.getMonth(), 1);
+  const fimTemporada = new Date(agora.getFullYear(), agora.getMonth() + 1, 1);
+  const meses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+  const participantesMinimos = 10;
+  const premioHabilitado = totalParticipantes >= participantesMinimos;
+
   return {
+    temporada: {
+      nome: `Desafio de ${meses[agora.getMonth()]} ${agora.getFullYear()}`,
+      inicio: inicioTemporada.toISOString().slice(0, 10),
+      fim: fimTemporada.toISOString().slice(0, 10),
+      criterio_principal: 'quilometragem_concluida',
+      criterio_desempate: 'viagens_concluidas',
+      participantes_minimos: participantesMinimos,
+      premio: {
+        titulo: premioHabilitado ? 'Premiação do mês' : 'Premiação em breve',
+        descricao: premioHabilitado
+          ? 'O campeão da temporada está elegível para a futura premiação definida pela organização.'
+          : 'A premiação será habilitada automaticamente quando houver pelo menos 10 participantes ativos.'
+      }
+    },
     periodo: {
-      inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
-      minimo_participantes_premio: 10
+      inicio: inicioTemporada.toISOString().slice(0, 10),
+      fim: fimTemporada.toISOString().slice(0, 10),
+      minimo_participantes_premio: participantesMinimos
     },
     total_participantes: totalParticipantes,
-    premio_habilitado: totalParticipantes >= 10,
-    faltam_para_premio: Math.max(0, 10 - totalParticipantes),
+    premio_habilitado: premioHabilitado,
+    faltam_para_premio: Math.max(0, participantesMinimos - totalParticipantes),
     ranking: linhas.map((linha, index) => ({
       ...linha,
       posicao: index + 1,
