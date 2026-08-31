@@ -769,108 +769,76 @@ function renderizarMinhaPosicaoRanking(ranking, motoristaId) {
 
 // Versão atual das novidades — mude para forçar o popup aparecer de novo
 function mostrarPopupBoasVindas() {
-  const VERSAO_POPUP = '2025-v3';
-  const chave = 'gr_popup_visto_' + VERSAO_POPUP;
-  if (sessionStorage.getItem(chave)) return;
-  sessionStorage.setItem(chave, '1');
+  // O onboarding aparece automaticamente somente após um cadastro novo.
+  const chaveNovoUsuario = 'felipinho_novo_usuario';
+  if (localStorage.getItem(chaveNovoUsuario) !== '1') return;
+
+  // Remove antes de abrir para evitar que o popup reapareça em refresh.
+  localStorage.removeItem(chaveNovoUsuario);
 
   const usuario = AuthService.obterUsuario();
   const nome = usuario?.nome?.split(' ')[0] || 'Motorista';
 
   Swal.fire({
+    width: 560,
+    padding: 0,
+    background: '#ffffff',
+    showCloseButton: true,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fa-solid fa-download"></i> Baixar o Launcher',
+    cancelButtonText: 'Explorar o painel primeiro',
+    confirmButtonColor: '#0B0B0B',
+    cancelButtonColor: '#eef1ef',
+    customClass: {
+      popup: 'felipinho-onboarding',
+      confirmButton: 'felipinho-onboarding-confirm',
+      cancelButton: 'felipinho-onboarding-cancel'
+    },
     html: `
-      <div style="text-align:left;font-family:var(--font-sans, system-ui);">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-          <div style="width:46px;height:46px;border-radius:12px;background:rgba(0, 0, 0,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="fa-solid fa-truck" style="font-size:1.3rem;color:#0B0B0B;"></i>
+      <div style="text-align:left;overflow:hidden;border-radius:18px;">
+        <div style="padding:30px 30px 24px;background:linear-gradient(135deg,#0b1510,#17251d);color:#fff;position:relative;">
+          <div style="position:absolute;width:170px;height:170px;border-radius:50%;right:-55px;top:-85px;background:rgba(212,160,23,.16);"></div>
+          <div style="position:relative;z-index:1;display:flex;align-items:center;gap:14px;">
+            <div style="width:52px;height:52px;border-radius:16px;background:rgba(212,160,23,.16);border:1px solid rgba(212,160,23,.28);display:flex;align-items:center;justify-content:center;">
+              <i class="fa-solid fa-satellite-dish" style="font-size:1.35rem;color:#D4A017;"></i>
+            </div>
+            <div>
+              <div style="font-size:.72rem;font-weight:800;letter-spacing:.13em;color:#D4A017;text-transform:uppercase;">Conta pronta para usar</div>
+              <div style="font-size:1.45rem;font-weight:800;margin-top:3px;">Olá, ${nome}! 👋</div>
+            </div>
           </div>
-          <div>
-            <div style="font-size:1.15rem;font-weight:700;color:#0B0B0B;">Olá, ${nome}! 👋</div>
-            <div style="font-size:0.82rem;color:#666;">Bem-vindo ao FELIPINHO LAUNCHER</div>
+          <p style="position:relative;z-index:1;margin:18px 0 0;color:rgba(255,255,255,.68);font-size:.88rem;line-height:1.6;">
+            Seu painel já está liberado. Agora falta instalar o <strong style="color:#fff;">FELIPINHO LAUNCHER</strong> para conectar o ETS2 à sua conta.
+          </p>
+        </div>
+
+        <div style="padding:24px 30px 10px;">
+          <div style="display:flex;gap:13px;padding:14px 0;border-bottom:1px solid #edf0ee;">
+            <div style="width:38px;height:38px;border-radius:11px;background:#eef8f1;color:#287344;display:flex;align-items:center;justify-content:center;flex:0 0 38px;"><i class="fa-solid fa-route"></i></div>
+            <div><strong style="font-size:.88rem;color:#202923;">Entregas automáticas</strong><div style="font-size:.76rem;color:#7d8782;margin-top:3px;line-height:1.45;">Suas viagens podem ser identificadas e registradas pela telemetria.</div></div>
+          </div>
+
+          <div style="display:flex;gap:13px;padding:14px 0;border-bottom:1px solid #edf0ee;">
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff7e5;color:#b97908;display:flex;align-items:center;justify-content:center;flex:0 0 38px;"><i class="fa-solid fa-gas-pump"></i></div>
+            <div><strong style="font-size:.88rem;color:#202923;">Abastecimentos e manutenção</strong><div style="font-size:.76rem;color:#7d8782;margin-top:3px;line-height:1.45;">O Launcher envia os eventos do jogo para seu painel.</div></div>
+          </div>
+
+          <div style="display:flex;gap:13px;padding:14px 0;">
+            <div style="width:38px;height:38px;border-radius:11px;background:#edf7fd;color:#367ca8;display:flex;align-items:center;justify-content:center;flex:0 0 38px;"><i class="fa-solid fa-chart-line"></i></div>
+            <div><strong style="font-size:.88rem;color:#202923;">Seu desempenho em um só lugar</strong><div style="font-size:.76rem;color:#7d8782;margin-top:3px;line-height:1.45;">Quilometragem, viagens e histórico ficam organizados automaticamente.</div></div>
           </div>
         </div>
 
-        <p style="font-size:0.88rem;color:#444;margin-bottom:16px;line-height:1.6;">
-          Veja como o sistema funciona e as últimas atualizações:
-        </p>
-
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-
-          <div style="background:#f8f9fa;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(52,152,219,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fa-solid fa-gas-pump" style="color:#3498DB;font-size:.85rem;"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.85rem;color:#222;">Abastecimentos</div>
-              <div style="font-size:.78rem;color:#666;margin-top:2px;line-height:1.5;">
-                Só é permitido abastecer em <strong>postos credenciados</strong>. Se o jogo não identificar o posto automaticamente, você será notificado para informar o nome e a cidade manualmente.
-              </div>
-            </div>
-          </div>
-
-          <div style="background:#f8f9fa;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,176,32,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fa-solid fa-screwdriver-wrench" style="color:#FFB020;font-size:.85rem;"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.85rem;color:#222;">Manutenções</div>
-              <div style="font-size:.78rem;color:#666;margin-top:2px;line-height:1.5;">
-                Faça manutenções <strong>apenas nas filiais</strong>: <strong>Catanduva - SP</strong> e <strong>Guapó - GO</strong>. Oficinas fora dessas cidades geram penalidade no ranking.
-              </div>
-            </div>
-          </div>
-
-          <div style="background:#f8f9fa;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(46,204,113,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fa-solid fa-trophy" style="color:#2ECC71;font-size:.85rem;"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.85rem;color:#222;">Ranking e pontuação</div>
-              <div style="font-size:.78rem;color:#666;margin-top:2px;line-height:1.5;">
-                Ganhe pontos ao concluir viagens. Perda de pontos por excesso de velocidade, cancelamento, dano ao veículo e infrações. Confira sua posição na aba <strong>Ranking</strong>.
-              </div>
-            </div>
-          </div>
-
-          <div style="background:#f8f9fa;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,77,79,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fa-solid fa-clock" style="color:#FF4D4F;font-size:.85rem;"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.85rem;color:#222;">Pendentes</div>
-              <div style="font-size:.78rem;color:#666;margin-top:2px;line-height:1.5;">
-                Se tiver abastecimentos ou manutenções <strong>pendentes</strong>, o administrador pode solicitar que você informe os dados. Fique de olho nas abas de Abastecimentos e Manutenções.
-              </div>
-            </div>
-          </div>
-
-          <div style="background:#f8f9fa;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(0, 0, 0,0.10);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fa-solid fa-coins" style="color:#0B0B0B;font-size:.85rem;"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.85rem;color:#222;">Valor das viagens</div>
-              <div style="font-size:.78rem;color:#666;margin-top:2px;line-height:1.5;">
-                O frete é calculado automaticamente por <strong>km rodado</strong> com base na dificuldade e no peso da carga — o valor mostrado no jogo é ignorado.
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div style="background:rgba(0, 0, 0,0.06);border-radius:8px;padding:10px 12px;font-size:0.78rem;color:#555;text-align:center;">
-          <i class="fa-solid fa-circle-info" style="color:#0B0B0B;margin-right:4px;"></i>
-          Este aviso aparece apenas uma vez por sessão. Boas viagens!
+        <div style="margin:0 30px 22px;padding:12px 14px;border-radius:12px;background:#f7f9f8;border:1px solid #edf0ee;color:#69746e;font-size:.74rem;line-height:1.5;">
+          <i class="fa-solid fa-circle-info" style="color:#D4A017;margin-right:5px;"></i>
+          Você pode continuar usando o painel agora e instalar o Launcher depois pela área de Downloads.
         </div>
       </div>
-    `,
-    showConfirmButton: true,
-    confirmButtonText: 'Entendido, vamos começar!',
-    confirmButtonColor: '#0B0B0B',
-    width: 520,
-    padding: '24px',
-    showClass: { popup: 'animate__animated animate__fadeInDown animate__faster' },
-    hideClass: { popup: 'animate__animated animate__fadeOutUp animate__faster' },
+    `
+  }).then((resultado) => {
+    if (resultado.isConfirmed) {
+      window.location.href = 'downloads.html';
+    }
   });
 }
 
