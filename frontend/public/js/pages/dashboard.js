@@ -9,7 +9,7 @@
   montarLayout({
     paginaAtiva: 'dashboard',
     titulo: ehAdmin ? 'Dashboard' : 'Meu Painel',
-    subtitulo: ehAdmin ? 'Visão geral da operação da transportadora' : 'Acompanhe suas viagens e desempenho'
+    subtitulo: ehAdmin ? 'Visão geral da operação da transportadora' : 'Suas viagens, ganhos e telemetria em um só lugar'
   });
 
   AOS.init({ duration: 500, once: true });
@@ -530,6 +530,26 @@ async function montarDashboardMotorista() {
     : `<span style="background:rgba(212, 160, 23,0.12);color:var(--verde-limao);border:1px solid rgba(212, 160, 23,0.25);font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-left:8px;"><i class="fa-solid fa-star me-1"></i>Motorista</span>`;
 
   main.innerHTML = `
+    <section class="card-gr mb-4" data-aos="fade-up" style="overflow:hidden;">
+      <div class="card-gr__body" style="padding:22px;">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+          <div>
+            <div style="font-size:.68rem;letter-spacing:.12em;font-weight:800;color:var(--verde-limao);text-transform:uppercase;margin-bottom:6px;">
+              <i class="fa-solid fa-user me-1"></i> PAINEL PESSOAL
+            </div>
+            <h2 style="font-size:1.45rem;margin:0 0 7px;">Tudo sobre a sua jornada em um só lugar</h2>
+            <p style="margin:0;color:var(--cinza-500);font-size:.88rem;max-width:650px;">
+              Acompanhe suas viagens, quilometragem, abastecimentos, manutenções e ganhos sem depender de uma empresa ou transportadora.
+            </p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="viagens.html" class="btn-gr-outline btn-sm"><i class="fa-solid fa-route me-1"></i> Minhas viagens</a>
+            <a href="downloads.html" class="btn-gr-primario btn-sm"><i class="fa-solid fa-download me-1"></i> Launcher</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="row g-3 mb-4" id="gridIndicadoresMotorista" data-aos="fade-up"></section>
 
     <!-- Linha 1: Feed de viagens + posição no ranking -->
@@ -537,7 +557,7 @@ async function montarDashboardMotorista() {
       <div class="col-lg-8" data-aos="fade-up">
         <div class="card-gr">
           <div class="card-gr__header">
-            <h3><i class="fa-solid fa-satellite-dish me-2" style="color:var(--verde-limao)"></i>Feed de Viagens${badgeNivel}</h3>
+            <h3><i class="fa-solid fa-satellite-dish me-2" style="color:var(--verde-limao)"></i>Minhas viagens recentes${badgeNivel}</h3>
             <a href="viagens.html" class="btn-gr-outline btn-sm">Ver todas</a>
           </div>
           <div class="feed-entregas" id="feedMotorista">
@@ -690,7 +710,7 @@ function renderizarIndicadoresMotorista(viagens) {
     { label: 'Viagens concluídas', valor: concluidas.length, icone: 'fa-flag-checkered', cor: 'bg-verde' },
     { label: 'Viagens em andamento', valor: emAndamento, icone: 'fa-route', cor: 'bg-info' },
     { label: 'KM rodados (total)', valor: Formatador.km(totalKm), icone: 'fa-road', cor: 'bg-limao' },
-    { label: 'Faturado (total)', valor: Formatador.moeda(totalFaturado), icone: 'fa-sack-dollar', cor: 'bg-limao' }
+    { label: 'Ganhos com fretes', valor: Formatador.moeda(totalFaturado), icone: 'fa-sack-dollar', cor: 'bg-limao' }
   ];
 
   document.getElementById('gridIndicadoresMotorista').innerHTML = cartoes.map((c) => `
