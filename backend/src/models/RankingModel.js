@@ -404,6 +404,63 @@ RankingModel.hallDaFama = async function(limite = 5) {
 };
 
 // ------------------------------------------------------------------
+//  Ranking público mensal por quilometragem
+//
+//  Critério principal: KM concluídos no mês.
+//  Desempate: número de viagens concluídas.
+//  A premiação futura só poderá ser validada quando houver pelo menos
+//  10 participantes com atividade no período.
+// ------------------------------------------------------------------
+RankingModel.rankingMensalKm = async function(limite = 50) {
+  const limiteSeguro = Math.max(1, Math.min(parseInt(limite, 10) || 50, 100));
+
+  const [participantesRows] = await pool.query(
+    `SELECT COUNT(DISTINCT motorista_id) AS total
+     FROM viagens
+     WHERE status = 'concluida'
+       AND data_chegada >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND data_chegada < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)`
+  );
+
+  const totalParticipantes = Number(participantesRows[0]?.total || 0);
+
+  const [linhas] = await pool.query(
+    `SELECT
+       m.id,
+       m.nome,
+       m.apelido,
+       m.foto_url,
+       SUM(v.distancia_km) AS km_mes,
+       COUNT(v.id) AS viagens_mes
+     FROM viagens v
+     JOIN motoristas m ON m.id = v.motorista_id
+     WHERE v.status = 'concluida'
+       AND v.data_chegada >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND v.data_chegada < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+       AND m.status = 'ativo'
+     GROUP BY m.id, m.nome, m.apelido, m.foto_url
+     ORDER BY km_mes DESC, viagens_mes DESC, m.nome ASC
+     LIMIT ${limiteSeguro}`
+  );
+
+  return {
+    periodo: {
+      inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10),
+      minimo_participantes_premio: 10
+    },
+    total_participantes: totalParticipantes,
+    premio_habilitado: totalParticipantes >= 10,
+    faltam_para_premio: Math.max(0, 10 - totalParticipantes),
+    ranking: linhas.map((linha, index) => ({
+      ...linha,
+      posicao: index + 1,
+      km_mes: Number(linha.km_mes || 0),
+      viagens_mes: Number(linha.viagens_mes || 0)
+    }))
+  };
+};
+
+// ------------------------------------------------------------------
 //  Zera ranking de UM motorista específico (ação administrativa)
 // ------------------------------------------------------------------
 RankingModel.zerarMotorista = async function(motorista_id) {
