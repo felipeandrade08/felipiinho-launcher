@@ -13,8 +13,12 @@ router.get('/ranking-publico', async (req, res, next) => {
 });
 
 router.use('/auth', require('./auth.routes'));
-router.use('/empresas', require('./empresas.routes'));
+
+// Rotas específicas devem ser montadas antes de /empresas para que
+// /empresas/solicitacoes não seja interpretada como /empresas/:slug.
 router.use('/empresas/solicitacoes', require('./empresaAprovacoes.routes'));
+router.use('/empresas', require('./empresas.routes'));
+
 router.use('/caminhoes', require('./caminhoes.routes'));
 router.use('/reboques', require('./reboques.routes'));
 router.use('/motoristas', require('./motoristas.routes'));
@@ -29,6 +33,7 @@ router.use('/notas-fiscais', require('./notasFiscais.routes'));
 router.use('/assinaturas', require('./assinaturas.routes'));
 router.use('/recrutamentos', require('./recrutamentos.routes'));
 router.use('/contratacoes', require('./contratacoes.routes'));
+router.use('/notificacoes', require('./notificacoes.routes'));
 // Rotas opcionais: os arquivos não existem nesta versão do backend.
 // Ranking e multas não devem impedir o servidor de iniciar.
 router.use('/telemetria', require('./telemetria.routes'));
