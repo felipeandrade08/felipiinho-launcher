@@ -38,7 +38,13 @@ const MotoristaController = {
     return sucesso(res, null, 'Motorista excluído com sucesso.');
   }),
 
-  ranking: asyncHandler(async (req, res) => sucesso(res, await MotoristaModel.ranking(Number(req.query.limite) || 10, req.conta.id))),
+  // O RankingModel atual não recebe contaId. O código anterior tentava
+  // acessar req.conta.id, mas o middleware atual popula req.usuario.
+  // Isso causava HTTP 500 em /api/motoristas/ranking.
+  ranking: asyncHandler(async (req, res) => {
+    const limite = Number(req.query.limite) || 10;
+    return sucesso(res, await MotoristaModel.ranking(limite));
+  }),
 
   atualizarFoto: asyncHandler(async (req, res) => {
     const { foto_url } = req.body;
