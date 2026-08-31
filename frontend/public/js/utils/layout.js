@@ -63,7 +63,9 @@ const MENU_MOTORISTA = [
   ]}
 ];
 
-function obterMenuAtual(){return AuthService.ehGestor()?MENU_GESTOR:MENU_MOTORISTA;}
+// Por enquanto a experiência visual do sistema é totalmente individual.
+// Os recursos administrativos continuam no backend, mas não aparecem na navegação principal.
+function obterMenuAtual(){return MENU_MOTORISTA;}
 
 function renderizarSidebar(paginaAtiva){
   const grupos=obterMenuAtual().map(grupo=>`
