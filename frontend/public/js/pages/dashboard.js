@@ -4,21 +4,17 @@
 // =====================================================================
 
 (async function () {
-  const ehAdmin = AuthService.ehAdmin();
-
+  // Nesta fase o FELIPINHO LAUNCHER está focado no uso individual.
+  // O mesmo painel pessoal é exibido independentemente do cargo,
+  // evitando qualquer fluxo visual de empresa/transportadora.
   montarLayout({
     paginaAtiva: 'dashboard',
-    titulo: ehAdmin ? 'Dashboard' : 'Meu Painel',
-    subtitulo: ehAdmin ? 'Visão geral da operação da transportadora' : 'Suas viagens, ganhos e telemetria em um só lugar'
+    titulo: 'Meu Painel',
+    subtitulo: 'Suas viagens, ganhos e telemetria em um só lugar'
   });
 
   AOS.init({ duration: 500, once: true });
-
-  if (ehAdmin) {
-    await montarDashboardAdmin();
-  } else {
-    await montarDashboardMotorista();
-  }
+  await montarDashboardMotorista();
 })();
 
 function formatarMesLabel(mesAno) {
