@@ -1,12 +1,111 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Ranking de Motoristas | FELIPINHO LAUNCHER</title><link rel="icon" type="image/png" href="img/logo/favicon.png"/><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet"><link href="css/design-system.css" rel="stylesheet"><link href="css/ranking-page.css" rel="stylesheet"></head><body><div id="appShell" class="app-shell"><main id="conteudoPagina"><section class="rank-hero" data-aos="fade-up"><div><span><i class="fa-solid fa-ranking-star"></i> DESAFIO MENSAL</span><h1>Ranking de Motoristas</h1><p>A classificação é definida principalmente pela quilometragem concluída no mês.</p></div><div class="rank-badge"><i class="fa-solid fa-trophy"></i> Ranking do mês</div></section><section class="card-gr rank-podium" data-aos="fade-up"><div class="card-gr__header"><div><span class="rank-kicker">DESTAQUES</span><h3>Top 3 Motoristas</h3></div><i class="fa-solid fa-medal"></i></div><div class="card-gr__body" id="podioTop3"><div class="text-center text-muted py-5">Carregando ranking...</div></div></section><section class="card-gr rank-points" data-aos="fade-up">
-  <div class="card-gr__header"><div><span class="rank-kicker">REGRAS DO DESAFIO</span><h3><i class="fa-solid fa-road me-2"></i>Como funciona o ranking</h3></div></div>
-  <div class="card-gr__body">
-    <div class="legenda-pontos">
-      <div class="legenda-item ganho">🏁 Critério principal · quilometragem concluída</div>
-      <div class="legenda-item ganho">🛣️ Desempate · maior número de viagens concluídas</div>
-      <div class="legenda-item ganho">📅 Período · mês atual</div>
-      <div class="legenda-item ganho">👥 Mínimo de 10 participantes para habilitar premiação</div>
-    </div>
-    <p class="text-muted mb-0 rank-note"><i class="fa-solid fa-gift"></i> Futuramente, o 1º lugar poderá receber uma DLC do ETS2 ou de mapas. Enquanto não houver 10 participantes ativos no mês, o ranking continua normalmente, mas nenhuma premiação é habilitada.</p>
-  </div>
-</section><section class="card-gr rank-table" data-aos="fade-up"><div class="card-gr__header"><div><span class="rank-kicker">CLASSIFICAÇÃO</span><h3>Ranking completo</h3></div><span class="rank-badge" id="statusPremio"><i class="fa-solid fa-gift"></i> Verificando participantes...</span></div><div class="table-responsive"><table class="tabela-gr"><thead><tr><th>#</th><th>Motorista</th><th>KM no mês</th><th>Viagens</th><th>Critério</th><th>Status</th></tr></thead><tbody id="corpoTabelaRanking"><tr><td colspan="6" class="text-center text-muted py-4">Carregando...</td></tr></tbody></table></div></section></main></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script><script src="js/config.js"></script><script src="js/services/api.js"></script><script src="js/services/auth.js"></script><script src="js/utils/formatadores.js"></script><script src="js/utils/layout.js"></script><script src="js/pages/ranking.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Desafio do Mês | FELIPINHO LAUNCHER</title>
+  <link rel="icon" type="image/png" href="img/logo/favicon.png"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="css/design-system.css" rel="stylesheet">
+  <link href="css/ranking-page.css" rel="stylesheet">
+</head>
+<body>
+<div id="appShell" class="app-shell">
+  <main id="conteudoPagina">
+
+    <section class="season-hero" data-aos="fade-up">
+      <div class="season-hero__content">
+        <span class="season-eyebrow"><i class="fa-solid fa-flag-checkered"></i> COMPETIÇÃO OFICIAL</span>
+        <h1 id="seasonTitle">Desafio do Mês</h1>
+        <p>Complete viagens, acumule quilômetros e dispute o topo da classificação.</p>
+        <div class="season-hero__rules">
+          <span><i class="fa-solid fa-road"></i> KM concluídos</span>
+          <span><i class="fa-solid fa-route"></i> Viagens desempata</span>
+        </div>
+      </div>
+      <div class="season-countdown">
+        <span>TERMINA EM</span>
+        <strong id="contadorTemporada">--d --h --m</strong>
+        <small id="periodoTemporada">Carregando temporada...</small>
+      </div>
+    </section>
+
+    <section class="season-grid" data-aos="fade-up">
+      <article class="season-card season-card--progress">
+        <div class="season-card__icon"><i class="fa-solid fa-users"></i></div>
+        <div>
+          <span class="season-card__label">PARTICIPANTES</span>
+          <strong id="participantesNumero">0/10</strong>
+          <p id="participantesTexto">Carregando participantes...</p>
+        </div>
+        <div class="season-progress"><span id="barraParticipantes"></span></div>
+      </article>
+
+      <article class="season-card season-card--leader">
+        <div class="season-card__icon"><i class="fa-solid fa-crown"></i></div>
+        <div>
+          <span class="season-card__label">LÍDER ATUAL</span>
+          <strong id="liderNome">Aguardando...</strong>
+          <p id="liderKm">Ainda não há viagens concluídas</p>
+        </div>
+      </article>
+
+      <article class="season-card season-card--gift">
+        <div class="season-card__icon"><i class="fa-solid fa-gift"></i></div>
+        <div>
+          <span class="season-card__label">PREMIAÇÃO</span>
+          <strong id="premioTitulo">Em breve</strong>
+          <p id="premioDescricao">Atinja 10 participantes para habilitar a premiação.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="card-gr challenge-rules" data-aos="fade-up">
+      <div class="card-gr__header">
+        <div><span class="rank-kicker">COMO PARTICIPAR</span><h3>🏁 Regras do Desafio</h3></div>
+      </div>
+      <div class="challenge-rules__grid">
+        <div><b>1</b><span>Baixe e deixe o Launcher conectado durante o jogo.</span></div>
+        <div><b>2</b><span>Conclua suas viagens normalmente no ETS2.</span></div>
+        <div><b>3</b><span>A telemetria registra automaticamente os quilômetros.</span></div>
+        <div><b>4</b><span>Quem terminar o mês com mais KM fica em 1º lugar.</span></div>
+      </div>
+      <p class="challenge-warning"><i class="fa-solid fa-circle-info"></i> Apenas viagens concluídas contam para a classificação. Valores de frete não influenciam o ranking.</p>
+    </section>
+
+    <section class="card-gr rank-podium" data-aos="fade-up">
+      <div class="card-gr__header">
+        <div><span class="rank-kicker">PÓDIO AO VIVO</span><h3>Top 3 da Temporada</h3></div>
+        <span class="live-pill"><i class="fa-solid fa-circle"></i> ATUALIZAÇÃO AUTOMÁTICA</span>
+      </div>
+      <div class="card-gr__body" id="podioTop3"><div class="text-center text-muted py-5">Carregando ranking...</div></div>
+    </section>
+
+    <section class="card-gr rank-table" data-aos="fade-up">
+      <div class="card-gr__header">
+        <div><span class="rank-kicker">CLASSIFICAÇÃO COMPLETA</span><h3>Ranking da Temporada</h3></div>
+        <span class="rank-badge" id="statusPremio"><i class="fa-solid fa-gift"></i> Verificando...</span>
+      </div>
+      <div class="table-responsive">
+        <table class="tabela-gr">
+          <thead><tr><th>#</th><th>Motorista</th><th>KM no mês</th><th>Viagens</th><th>Critério</th><th>Status</th></tr></thead>
+          <tbody id="corpoTabelaRanking"><tr><td colspan="6" class="text-center text-muted py-4">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="js/config.js"></script>
+<script src="js/services/api.js"></script>
+<script src="js/services/auth.js"></script>
+<script src="js/utils/formatadores.js"></script>
+<script src="js/utils/layout.js"></script>
+<script src="js/pages/ranking.js"></script>
+</body>
+</html>
