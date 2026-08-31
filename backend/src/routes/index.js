@@ -1,5 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const RankingModel = require('../models/RankingModel');
+
+// Endpoint público para a página inicial: ranking mensal por quilometragem.
+router.get('/ranking-publico', async (req, res, next) => {
+  try {
+    const dados = await RankingModel.rankingMensalKm(req.query.limite || 10);
+    res.json({ sucesso: true, dados });
+  } catch (erro) {
+    next(erro);
+  }
+});
 
 router.use('/auth', require('./auth.routes'));
 router.use('/empresas', require('./empresas.routes'));
