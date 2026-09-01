@@ -7,6 +7,7 @@ const { pool } = require('../config/database');
 async function obterContextoConta(usuarioId) {
   const [linhas] = await pool.query(
     `SELECT c.id AS conta_id, c.tipo AS conta_tipo, c.status AS conta_status,
+            cm.papel AS papel,
             a.id AS assinatura_id, a.status AS assinatura_status,
             a.inicio_em, a.fim_em, a.trial_inicio, a.trial_fim, a.trial_usado,
             p.id AS plano_id, p.codigo AS plano_codigo, p.nome AS plano_nome,
