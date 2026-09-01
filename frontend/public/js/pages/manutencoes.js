@@ -6,7 +6,6 @@ let modalManutencao, modalResolver, modalRegularizar;
 let listaManutencoes = [];
 let graficoManutencao = null;
 let ehAdmin = false;
-let filiaisCredenciadas = [];
 
 // Componentes do veículo (espelho da tela ETS2)
 const COMPONENTES_VEICULO = [
@@ -31,8 +30,8 @@ const COMPONENTES_REBOQUE = [
     paginaAtiva: 'manutencoes',
     titulo: ehAdmin ? 'Manutenções' : 'Minhas Manutenções',
     subtitulo: ehAdmin
-      ? 'Controle de manutenções da frota — filiais credenciadas: Catanduva e Guapó'
-      : 'Seus registros de manutenção — faça manutenções nas filiais para evitar penalidade',
+      ? 'Controle de manutenções e custos da frota'
+      : 'Seus registros de manutenção e histórico da frota',
   });
 
   AOS.init({ duration: 500, once: true });
@@ -49,7 +48,6 @@ const COMPONENTES_REBOQUE = [
   document.getElementById('btnConfirmarRegularizar').addEventListener('click', confirmarRegularizar);
 
   await Promise.all([
-    carregarFiliais(),
     carregarSelects(),
     carregarManutencoes(),
     carregarGrafico(),
@@ -57,31 +55,6 @@ const COMPONENTES_REBOQUE = [
 
   renderizarTabelaComponentes();
 })();
-
-// ─── Filiais credenciadas ─────────────────────────────────────────────
-
-async function carregarFiliais() {
-  try {
-    filiaisCredenciadas = await ApiService.get('/manutencoes/filiais-credenciadas');
-    const wrap = document.getElementById('chipFiliais');
-    if (!filiaisCredenciadas.length) {
-      wrap.innerHTML = '<p class="text-muted small">Nenhuma filial cadastrada.</p>';
-      return;
-    }
-    wrap.innerHTML = filiaisCredenciadas.map(f => `
-      <div class="chip-filial">
-        <div class="chip-filial__icone"><i class="fa-solid fa-building"></i></div>
-        <div>
-          <div class="chip-filial__nome">${f.posto}</div>
-          <div class="chip-filial__cidade">${f.cidade}</div>
-        </div>
-        <span class="chip-filial__badge">Credenciada</span>
-      </div>
-    `).join('');
-  } catch (e) {
-    document.getElementById('chipFiliais').innerHTML = '<p class="text-muted small">Erro ao carregar filiais.</p>';
-  }
-}
 
 // ─── Selects ──────────────────────────────────────────────────────────
 
@@ -156,7 +129,6 @@ function atualizarKpis(lista) {
   const total       = lista.length;
   const custo       = lista.reduce((s, m) => s + Number(m.custo_total || 0), 0);
   const pendentes   = lista.filter(m => m.status === 'pendente').length;
-  const credenciadas = lista.filter(m => m.credenciada).length;
 
   document.getElementById('gridResumoManutencao').innerHTML = `
     <div class="col-6 col-md-3">
@@ -171,12 +143,6 @@ function atualizarKpis(lista) {
           ${custo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
         </div>
         <div class="text-muted small">Custo total</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="card-gr text-center py-3">
-        <div style="font-size:1.6rem;font-weight:700;font-family:var(--fonte-display);color:#2ECC71">${credenciadas}</div>
-        <div class="text-muted small">Em filial credenciada</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
@@ -227,9 +193,6 @@ function renderizarTabela(lista) {
     const statusBadge = m.status === 'pendente'
       ? '<span class="badge-status-pendente"><i class="fa-solid fa-clock"></i> Pendente</span>'
       : '<span class="badge-status-ok"><i class="fa-solid fa-check"></i> OK</span>';
-    const credBadge = m.credenciada
-      ? '<span class="badge-credenciada"><i class="fa-solid fa-building"></i> Filial</span>'
-      : '<span class="badge-nao-credenciada"><i class="fa-solid fa-xmark"></i> Não credenciada</span>';
 
     let acoes = '';
     if (m.status === 'pendente') {
@@ -261,7 +224,6 @@ function renderizarTabela(lista) {
         <td>${tipoLabel(m.tipo)}</td>
         <td>${custo}</td>
         <td>${statusBadge}</td>
-        <td>${credBadge}</td>
         <td>${acoes}</td>
       </tr>`;
   }).join('');
@@ -376,48 +338,12 @@ function _coletarComponentes() {
   return todos;
 }
 
-// ─── Verificação de filial em tempo real ─────────────────────────────
-
-function verificarFilialModal() {
-  const cidade = (document.getElementById('campoCidade')?.value || '').trim().toLowerCase();
-  const local  = (document.getElementById('campoLocalServico')?.value || '').trim().toLowerCase();
-  const badge  = document.getElementById('badgeFilialModal');
-  const footer = document.getElementById('avisoFilialFooter');
-
-  if (!cidade && !local) {
-    badge.innerHTML  = '<i class="fa-solid fa-question-circle"></i> Aguardando';
-    badge.style.cssText = 'background:rgba(158,158,158,0.1);color:#9E9E9E;border:1px dashed #9E9E9E;';
-    footer.textContent = '';
-    return;
-  }
-
-  const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
-  const match = filiaisCredenciadas.find(f =>
-    norm(cidade).includes(norm(f.cidade)) || norm(local).includes(norm(f.posto))
-  );
-
-  if (match) {
-    badge.innerHTML  = `<i class="fa-solid fa-check-circle"></i> ${match.posto}`;
-    badge.style.cssText = 'background:rgba(46,204,113,0.12);color:#2ECC71;border:1px solid rgba(46,204,113,0.35);';
-    footer.innerHTML = `<i class="fa-solid fa-check-circle" style="color:#2ECC71"></i> Filial credenciada — sem penalidade`;
-    footer.style.color = '#2ECC71';
-  } else {
-    badge.innerHTML  = '<i class="fa-solid fa-triangle-exclamation"></i> Não credenciada';
-    badge.style.cssText = 'background:rgba(255,77,79,0.12);color:#FF4D4F;border:1px solid rgba(255,77,79,0.3);';
-    footer.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#FF4D4F"></i> Local não é uma filial — <strong>pode gerar penalidade</strong>`;
-    footer.style.color = '#FF4D4F';
-  }
-}
-
 // ─── Abrir modal ──────────────────────────────────────────────────────
 
 function abrirModalNovo() {
   document.getElementById('formManutencao').reset();
   document.getElementById('manutencaoId').value = '';
   document.getElementById('campoDataManutencao').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('badgeFilialModal').innerHTML = '<i class="fa-solid fa-question-circle"></i> Aguardando';
-  document.getElementById('badgeFilialModal').style.cssText = 'background:rgba(158,158,158,0.1);color:#9E9E9E;border:1px dashed #9E9E9E;';
-  document.getElementById('avisoFilialFooter').textContent = '';
   document.getElementById('campoCustoTotal').value = '';
   document.getElementById('subtotalVeiculo').textContent = 'R$ 0,00';
   document.getElementById('subtotalReboque').textContent = 'R$ 0,00';
@@ -459,7 +385,7 @@ async function salvarManutencao(e) {
   };
 
   if (!payload.cidade || !payload.local_servico) {
-    Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Informe a cidade e o local/filial.' });
+    Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Informe a cidade e o local da oficina.' });
     return;
   }
 
@@ -488,7 +414,7 @@ async function enviarResolver() {
   const local_servico = document.getElementById('resolverLocalServico').value.trim();
 
   if (!cidade || !local_servico) {
-    Swal.fire({ icon: 'warning', title: 'Preencha todos os campos', text: 'Informe a cidade e o nome da filial/oficina.' });
+    Swal.fire({ icon: 'warning', title: 'Preencha todos os campos', text: 'Informe a cidade e o nome da oficina/local.' });
     return;
   }
 
@@ -496,11 +422,7 @@ async function enviarResolver() {
     const res = await ApiService.patch(`/manutencoes/${id}/resolver-pendente`, { cidade, local_servico });
     modalResolver.hide();
     await carregarManutencoes();
-    if (res.credenciada) {
-      Swal.fire({ icon: 'success', title: 'Confirmado automaticamente!', text: res.motivo, timer: 3000, showConfirmButton: false });
-    } else {
-      Swal.fire({ icon: 'info', title: 'Dados enviados', text: 'O administrador irá regularizar em breve.' });
-    }
+    Swal.fire({ icon: 'success', title: 'Dados enviados', text: 'O administrador irá analisar o registro, se necessário.', timer: 2500, showConfirmButton: false });
   } catch (err) {
     Swal.fire({ icon: 'error', title: 'Erro', text: err.message || 'Não foi possível enviar.' });
   }

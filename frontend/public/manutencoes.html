@@ -12,95 +12,9 @@
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <link href="css/design-system.css" rel="stylesheet">
 <style>
-  /* ---- Card de filiais credenciadas ---- */
-  .card-filiais {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-radius: 18px;
-    padding: 20px 22px;
-    color: var(--branco);
-    border: 1px solid rgba(255,255,255,0.07);
-  }
-  .card-filiais__header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-  .card-filiais__titulo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--fonte-display);
-    font-weight: 700;
-    font-size: 1.05rem;
-  }
-  .card-filiais__titulo i {
-    width: 38px; height: 38px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(255,176,32,0.18);
-    color: #FFB020;
-    border-radius: 10px;
-    font-size: 1rem;
-  }
-  .card-filiais__subtitulo {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.55);
-    margin-top: 2px;
-  }
-  .card-filiais__aviso {
-    background: rgba(255,77,79,0.12);
-    border: 1px solid rgba(255,77,79,0.3);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 0.83rem;
-    color: rgba(255,255,255,0.8);
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    margin-bottom: 16px;
-  }
-  .card-filiais__aviso i { color: #FF4D4F; margin-top: 2px; flex-shrink: 0; }
-
-  .filial-chips { display: flex; gap: 12px; flex-wrap: wrap; }
-  .chip-filial {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,176,32,0.10);
-    border: 1.5px solid rgba(255,176,32,0.35);
-    border-radius: 14px;
-    padding: 12px 18px;
-    min-width: 220px;
-  }
-  .chip-filial__icone {
-    width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(255,176,32,0.18);
-    color: #FFB020;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-  }
-  .chip-filial__nome { font-weight: 700; font-size: 0.9rem; }
-  .chip-filial__cidade { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
-  .chip-filial__badge {
-    margin-left: auto;
-    background: rgba(255,176,32,0.25);
-    color: #FFB020;
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
   /* Badge de status */
   .badge-status-ok      { background: rgba(46,204,113,0.15); color: #2ECC71; border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; font-weight: 600; }
   .badge-status-pendente{ background: rgba(255,176,32,0.15); color: #FFB020;  border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; font-weight: 600; }
-  .badge-credenciada    { background: rgba(46,204,113,0.12); color: #2ECC71; border-radius: 20px; padding: 2px 8px;  font-size: 0.72rem; }
-  .badge-nao-credenciada{ background: rgba(255,77,79,0.12);  color: #FF4D4F; border-radius: 20px; padding: 2px 8px;  font-size: 0.72rem; }
 
   /* Alerta de pendentes */
   .alerta-pendentes {
@@ -156,23 +70,6 @@
 <div id="appShell" class="app-shell">
   <main id="conteudoPagina">
 
-    <!-- Card de filiais credenciadas -->
-    <div class="card-filiais mb-4" data-aos="fade-up">
-      <div class="card-filiais__header">
-        <div>
-          <div class="card-filiais__titulo"><i class="fa-solid fa-screwdriver-wrench"></i> Filiais credenciadas para manutenção</div>
-          <p class="card-filiais__subtitulo">Realize manutenções apenas nessas unidades para evitar penalidade</p>
-        </div>
-      </div>
-      <div class="card-filiais__aviso">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>Fazer manutenção em oficinas fora das filiais abaixo gera <strong>penalidade no ranking</strong>. Se o jogo não identificar a cidade automaticamente, você deverá informar manualmente.</span>
-      </div>
-      <div class="filial-chips" id="chipFiliais">
-        <div class="text-muted small">Carregando...</div>
-      </div>
-    </div>
-
     <!-- Alerta de pendentes (aparece quando há itens aguardando) -->
     <div class="alerta-pendentes mb-4" id="alertaPendentes" data-aos="fade-up" onclick="filtrarPendentes()">
       <div class="alerta-pendentes__icone"><i class="fa-solid fa-clock"></i></div>
@@ -226,12 +123,11 @@
               <th>Tipo</th>
               <th>Custo</th>
               <th>Status</th>
-              <th>Credenciada</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="corpoTabelaManutencoes">
-            <tr><td colspan="9" class="text-center text-muted py-4">Carregando...</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -283,30 +179,21 @@
             </div>
           </div>
 
-          <!-- Seção 2: Local (com verificação de filial) -->
+          <!-- Seção 2: Local do Serviço -->
           <div class="card-gr mb-3">
             <div class="card-gr__header" style="padding:12px 16px;">
               <h6 class="mb-0 fonte-display fw-bold"><i class="fa-solid fa-location-dot me-2"></i>Local do Serviço</h6>
             </div>
             <div class="card-gr__body">
               <div class="row g-3 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-6">
                   <label class="form-label-gr">Cidade *</label>
-                  <input type="text" class="form-control" id="campoCidade" placeholder="Ex: Catanduva" required oninput="verificarFilialModal()">
+                  <input type="text" class="form-control" id="campoCidade" placeholder="Ex: Catanduva" required >
                 </div>
-                <div class="col-md-5">
-                  <label class="form-label-gr">Filial / Oficina *</label>
-                  <input type="text" class="form-control" id="campoLocalServico" placeholder="Ex: Filial SP" required oninput="verificarFilialModal()">
+                <div class="col-md-6">
+                  <label class="form-label-gr">Oficina / Local *</label>
+                  <input type="text" class="form-control" id="campoLocalServico" placeholder="Ex: Oficina Central" required >
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                  <div id="badgeFilialModal" class="w-100 text-center py-2 px-2 rounded" style="font-size:0.78rem;font-weight:600;background:rgba(158,158,158,0.1);color:#9E9E9E;border:1px dashed #9E9E9E;">
-                    <i class="fa-solid fa-question-circle"></i> Aguardando
-                  </div>
-                </div>
-              </div>
-              <div class="mt-2" style="background:rgba(255,176,32,0.08);border:1px solid rgba(255,176,32,0.2);border-radius:8px;padding:8px 12px;font-size:0.8rem;color:rgba(0,0,0,0.6);">
-                <i class="fa-solid fa-circle-info" style="color:#FFB020"></i>
-                Filiais credenciadas: <strong>Catanduva - SP (Filial SP)</strong> e <strong>Guapó - GO (Filial GO)</strong>. Manutenção fora dessas cidades gera penalidade.
               </div>
             </div>
           </div>
@@ -404,7 +291,6 @@
 
         </div><!-- /modal-body -->
         <div class="modal-footer" style="border-top:1px solid var(--cinza-200); justify-content:space-between;">
-          <div id="avisoFilialFooter" style="font-size:0.82rem;color:#9E9E9E;"></div>
           <div class="d-flex gap-2">
             <button type="button" class="btn-gr-outline" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn-gr-primario"><i class="fa-solid fa-floppy-disk"></i> Salvar Manutenção</button>
@@ -428,7 +314,7 @@
       <div class="modal-body">
         <p class="text-muted small mb-3">
           O Launcher não conseguiu identificar o local desta manutenção.<br>
-          Preencha os dados abaixo. Se for uma filial credenciada, será aprovado automaticamente.
+          Preencha os dados abaixo. O administrador irá analisar e regularizar o registro, se necessário.
         </p>
         <input type="hidden" id="resolverManutencaoId">
         <div class="mb-3">
@@ -436,12 +322,8 @@
           <input type="text" class="form-control" id="resolverCidade" placeholder="Ex: Catanduva">
         </div>
         <div class="mb-3">
-          <label class="form-label-gr">Nome da filial / oficina *</label>
-          <input type="text" class="form-control" id="resolverLocalServico" placeholder="Ex: Filial SP">
-        </div>
-        <div style="background:rgba(255,176,32,0.08);border:1px solid rgba(255,176,32,0.25);border-radius:10px;padding:10px 14px;font-size:0.82rem;color:rgba(255,255,255,0.7);">
-          <i class="fa-solid fa-circle-info" style="color:#FFB020"></i>
-          Filiais credenciadas: <strong style="color:#FFB020">Catanduva - SP (Filial SP)</strong> e <strong style="color:#FFB020">Guapó - GO (Filial GO)</strong>
+          <label class="form-label-gr">Nome da oficina / local *</label>
+          <input type="text" class="form-control" id="resolverLocalServico" placeholder="Ex: Oficina Central">
         </div>
       </div>
       <div class="modal-footer" style="border-top:1px solid var(--cinza-200);">
