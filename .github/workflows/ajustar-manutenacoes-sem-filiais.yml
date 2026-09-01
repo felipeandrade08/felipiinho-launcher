@@ -22,106 +22,43 @@ jobs:
 
           html_path = Path('frontend/public/manutencoes.html')
           js_path = Path('frontend/public/js/pages/manutencoes.js')
-
           html = html_path.read_text(encoding='utf-8')
           js = js_path.read_text(encoding='utf-8')
 
-          # =========================
-          # HTML
-          # =========================
-          html = re.sub(
-              r'\n  /\* ---- Card de filiais credenciadas ---- \*/.*?\n  /\* Badge de status \*/',
-              '\n  /* Badge de status */',
-              html,
-              flags=re.S,
-          )
+          html = re.sub(r'\n  /\* ---- Card de filiais credenciadas ---- \*/.*?\n  /\* Badge de status \*/', '\n  /* Badge de status */', html, flags=re.S)
           html = re.sub(r'\n  \.badge-credenciada\s*\{.*?\n', '\n', html)
           html = re.sub(r'\n  \.badge-nao-credenciada\s*\{.*?\n', '\n', html)
-          html = re.sub(
-              r'\n    <!-- Card de filiais credenciadas -->.*?\n    <!-- Alerta de pendentes',
-              '\n    <!-- Alerta de pendentes',
-              html,
-              flags=re.S,
-          )
+          html = re.sub(r'\n    <!-- Card de filiais credenciadas -->.*?\n    <!-- Alerta de pendentes', '\n    <!-- Alerta de pendentes', html, flags=re.S)
           html = html.replace('              <th>Credenciada</th>\n', '')
           html = html.replace('colspan="9"', 'colspan="8"')
           html = html.replace('<!-- Seção 2: Local (com verificação de filial) -->', '<!-- Seção 2: Local do Serviço -->')
           html = html.replace('oninput="verificarFilialModal()"', '')
           html = html.replace('>Filial / Oficina *</label>', '>Oficina / Local *</label>')
           html = html.replace('placeholder="Ex: Filial SP"', 'placeholder="Ex: Oficina Central"')
-          html = re.sub(
-              r'\n                <div class="col-md-2 d-flex align-items-end">\s*<div id="badgeFilialModal".*?</div>\s*</div>',
-              '',
-              html,
-              flags=re.S,
-          )
+          html = re.sub(r'\n                <div class="col-md-2 d-flex align-items-end">\s*<div id="badgeFilialModal".*?</div>\s*</div>', '', html, flags=re.S)
           html = html.replace('<div class="col-md-5">', '<div class="col-md-6">', 2)
-          html = re.sub(
-              r'\n              <div class="mt-2" style="background:rgba\(255,176,32,0\.08\).*?</div>\n',
-              '\n',
-              html,
-              flags=re.S,
-          )
+          html = re.sub(r'\n              <div class="mt-2" style="background:rgba\(255,176,32,0\.08\).*?</div>\n', '\n', html, flags=re.S)
           html = html.replace('          <div id="avisoFilialFooter" style="font-size:0.82rem;color:#9E9E9E;"></div>\n', '')
-          html = html.replace('          Se for uma filial credenciada, será aprovado automaticamente.', '          O administrador irá analisar e regularizar o registro, se necessário.')
+          html = html.replace('Se for uma filial credenciada, será aprovado automaticamente.', 'O administrador irá analisar e regularizar o registro, se necessário.')
           html = html.replace('Nome da filial / oficina *', 'Nome da oficina / local *')
-          html = re.sub(
-              r'\n        <div style="background:rgba\(255,176,32,0\.08\).*?Filiais credenciadas:.*?</div>',
-              '',
-              html,
-              flags=re.S,
-          )
+          html = re.sub(r'\n        <div style="background:rgba\(255,176,32,0\.08\).*?Filiais credenciadas:.*?</div>', '', html, flags=re.S)
           html_path.write_text(html, encoding='utf-8')
 
-          # =========================
-          # JavaScript
-          # =========================
           js = js.replace('let filiaisCredenciadas = [];\n', '')
           js = js.replace("      ? 'Controle de manutenções da frota — filiais credenciadas: Catanduva e Guapó'\n      : 'Seus registros de manutenção — faça manutenções nas filiais para evitar penalidade',", "      ? 'Controle de manutenções e custos da frota'\n      : 'Seus registros de manutenção e histórico da frota',")
           js = js.replace('    carregarFiliais(),\n', '')
-          js = re.sub(
-              r'// ─── Filiais credenciadas ─────────────────────────────────────────────\n\nasync function carregarFiliais\(\) \{.*?\n\}\n\n',
-              '',
-              js,
-              flags=re.S,
-          )
+          js = re.sub(r'// ─── Filiais credenciadas ─────────────────────────────────────────────\n\nasync function carregarFiliais\(\) \{.*?\n\}\n\n', '', js, flags=re.S)
           js = js.replace('  const credenciadas = lista.filter(m => m.credenciada).length;\n', '')
-          js = re.sub(
-              r'\n    <div class="col-6 col-md-3">\n      <div class="card-gr text-center py-3">\n        <div style="font-size:1\.6rem;font-weight:700;font-family:var\(--fonte-display\);color:#2ECC71">\$\{credenciadas\}</div>\n        <div class="text-muted small">Em filial credenciada</div>\n      </div>\n    </div>',
-              '',
-              js,
-              flags=re.S,
-          )
-          js = re.sub(
-              r'\n    const credBadge = m\.credenciada.*?;\n',
-              '\n',
-              js,
-              flags=re.S,
-          )
+          js = re.sub(r'\n    <div class="col-6 col-md-3">\n      <div class="card-gr text-center py-3">\n        <div style="font-size:1\.6rem;font-weight:700;font-family:var\(--fonte-display\);color:#2ECC71">\$\{credenciadas\}</div>\n        <div class="text-muted small">Em filial credenciada</div>\n      </div>\n    </div>', '', js, flags=re.S)
+          js = re.sub(r'\n    const credBadge = m\.credenciada.*?;\n', '\n', js, flags=re.S)
           js = js.replace('        <td>${credBadge}</td>\n', '')
-          js = re.sub(
-              r'// ─── Verificação de filial em tempo real ─────────────────────────────\n\nfunction verificarFilialModal\(\) \{.*?\n\}\n\n',
-              '',
-              js,
-              flags=re.S,
-          )
-          js = re.sub(
-              r"\n  document\.getElementById\('badgeFilialModal'\).*?\n  document\.getElementById\('campoCustoTotal'\)",
-              "\n  document.getElementById('campoCustoTotal')",
-              js,
-              flags=re.S,
-          )
+          js = re.sub(r'// ─── Verificação de filial em tempo real ─────────────────────────────\n\nfunction verificarFilialModal\(\) \{.*?\n\}\n\n', '', js, flags=re.S)
+          js = re.sub(r"\n  document\.getElementById\('badgeFilialModal'\).*?\n  document\.getElementById\('campoCustoTotal'\)", "\n  document.getElementById('campoCustoTotal')", js, flags=re.S)
           js = js.replace("text: 'Informe a cidade e o local/filial.'", "text: 'Informe a cidade e o local da oficina.'")
-          js = re.sub(
-              r"\n    if \(res\.credenciada\) \{.*?\n    \} else \{\n      Swal\.fire\(\{ icon: 'info', title: 'Dados enviados', text: 'O administrador irá regularizar em breve\.' \}\);\n    \}",
-              "\n    Swal.fire({ icon: 'success', title: 'Dados enviados', text: 'O administrador irá analisar o registro, se necessário.', timer: 2500, showConfirmButton: false });",
-              js,
-              flags=re.S,
-          )
+          js = re.sub(r"\n    if \(res\.credenciada\) \{.*?\n    \} else \{\n      Swal\.fire\(\{ icon: 'info', title: 'Dados enviados', text: 'O administrador irá regularizar em breve\.' \}\);\n    \}", "\n    Swal.fire({ icon: 'success', title: 'Dados enviados', text: 'O administrador irá analisar o registro, se necessário.', timer: 2500, showConfirmButton: false });", js, flags=re.S)
           js = js.replace("'Informe a cidade e o nome da filial/oficina.'", "'Informe a cidade e o nome da oficina/local.'")
           js_path.write_text(js, encoding='utf-8')
 
-          # Validação simples: nenhuma referência funcional a filiais deve permanecer na página.
           for path in (html_path, js_path):
               text = path.read_text(encoding='utf-8').lower()
               forbidden = ['filiais-credenciadas', 'filiais credenciadas', 'filial credenciada', 'badgefilialmodal', 'filiaiscredenciadas']
