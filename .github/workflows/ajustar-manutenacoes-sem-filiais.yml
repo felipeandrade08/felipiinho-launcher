@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Limpar referências de filiais
+      - name: Finalizar limpeza da página de manutenções
         shell: python
         run: |
           from pathlib import Path
@@ -25,14 +25,13 @@ jobs:
           html = html_path.read_text(encoding='utf-8')
           js = js_path.read_text(encoding='utf-8')
 
-          # HTML: remover card, estilos, coluna e elementos de verificação de filial.
+          # Garantir que não exista mais nenhum bloco visual de filiais/credenciamento.
           html = re.sub(r'\n  /\* ---- Card de filiais credenciadas ---- \*/.*?\n  /\* Badge de status \*/', '\n  /* Badge de status */', html, flags=re.S)
           html = re.sub(r'\n  \.badge-credenciada\s*\{.*?\n', '\n', html)
           html = re.sub(r'\n  \.badge-nao-credenciada\s*\{.*?\n', '\n', html)
           html = re.sub(r'\n    <!-- Card de filiais credenciadas -->.*?\n    <!-- Alerta de pendentes', '\n    <!-- Alerta de pendentes', html, flags=re.S)
           html = html.replace('              <th>Credenciada</th>\n', '')
           html = html.replace('colspan="9"', 'colspan="8"')
-          html = html.replace('<!-- Seção 2: Local (com verificação de filial) -->', '<!-- Seção 2: Local do Serviço -->')
           html = html.replace('oninput="verificarFilialModal()"', '')
           html = html.replace('>Filial / Oficina *</label>', '>Oficina / Local *</label>')
           html = html.replace('placeholder="Ex: Filial SP"', 'placeholder="Ex: Oficina Central"')
@@ -43,15 +42,16 @@ jobs:
           html = html.replace('Se for uma filial credenciada, será aprovado automaticamente.', 'O administrador irá analisar e regularizar o registro, se necessário.')
           html = html.replace('Nome da filial / oficina *', 'Nome da oficina / local *')
           html = re.sub(r'\n        <div style="background:rgba\(255,176,32,0\.08\).*?Filiais credenciadas:.*?</div>', '', html, flags=re.S)
-
-          # Limpeza textual final para não deixar nomenclatura de filial na tela.
           html = re.sub(r'filiais?\s+credenciadas?', 'oficinas', html, flags=re.I)
           html = re.sub(r'filial\s*/\s*oficina', 'oficina / local', html, flags=re.I)
           html = re.sub(r'filial/oficina', 'oficina/local', html, flags=re.I)
-          html = re.sub(r'filiais?', 'oficinas', html, flags=re.I)
+
+          # Regularização não deve mais aplicar penalidade por local/filial.
+          html = re.sub(r'\n        <div class="mb-3">\s*<label class="form-label-gr">Decisão</label>.*?</div>\n        </div>', '\n', html, flags=re.S)
+          html = html.replace('<i class="fa-solid fa-gavel"></i> Confirmar decisão', '<i class="fa-solid fa-check"></i> Confirmar regularização')
           html_path.write_text(html, encoding='utf-8')
 
-          # JS: remover endpoint, estado, verificação, KPI e coluna de credenciada.
+          # Remover toda dependência de filiais do JavaScript.
           js = js.replace('let filiaisCredenciadas = [];\n', '')
           js = js.replace("      ? 'Controle de manutenções da frota — filiais credenciadas: Catanduva e Guapó'\n      : 'Seus registros de manutenção — faça manutenções nas filiais para evitar penalidade',", "      ? 'Controle de manutenções e custos da frota'\n      : 'Seus registros de manutenção e histórico da frota',")
           js = js.replace('    carregarFiliais(),\n', '')
@@ -65,15 +65,19 @@ jobs:
           js = js.replace("text: 'Informe a cidade e o local/filial.'", "text: 'Informe a cidade e o local da oficina.'")
           js = re.sub(r"\n    if \(res\.credenciada\) \{.*?\n    \} else \{\n      Swal\.fire\(\{ icon: 'info', title: 'Dados enviados', text: 'O administrador irá regularizar em breve\.' \}\);\n    \}", "\n    Swal.fire({ icon: 'success', title: 'Dados enviados', text: 'O administrador irá analisar o registro, se necessário.', timer: 2500, showConfirmButton: false });", js, flags=re.S)
           js = js.replace("'Informe a cidade e o nome da filial/oficina.'", "'Informe a cidade e o nome da oficina/local.'")
+          js = js.replace("    document.getElementById('optPenalizar').checked = true;\n", '')
+          js = re.sub(r"  const decisao\s*= document\.querySelector\('input\[name=\"decisaoRegularizar\"\]:checked'\)\.value;\n  const penalizar = decisao === 'penalizar';\n", '', js)
+          js = js.replace("await ApiService.patch(`/manutencoes/${id}/regularizar`, { penalizar, observacoes: obs });", "await ApiService.patch(`/manutencoes/${id}/regularizar`, { penalizar: false, observacoes: obs });")
+          js = re.sub(r"    Swal\.fire\(\{\n      icon: penalizar \? 'warning' : 'success',\n      title: penalizar \? 'Penalidade aplicada' : 'Liberado sem penalidade',\n      timer: 2500, showConfirmButton: false,\n    \}\);", "    Swal.fire({ icon: 'success', title: 'Manutenção regularizada', timer: 2500, showConfirmButton: false });", js)
+          js = js.replace('colspan="9"', 'colspan="8"')
           js = re.sub(r'filiais?\s+credenciadas?', 'oficinas', js, flags=re.I)
           js = re.sub(r'filial\s*/\s*oficina', 'oficina / local', js, flags=re.I)
           js = re.sub(r'filial/oficina', 'oficina/local', js, flags=re.I)
           js_path.write_text(js, encoding='utf-8')
 
-          # A página não deve mais chamar a rota de filiais nem conter os identificadores antigos.
           for path in (html_path, js_path):
               text = path.read_text(encoding='utf-8').lower()
-              forbidden = ['filiais-credenciadas', 'badgefilialmodal', 'filiaiscredenciadas']
+              forbidden = ['filiais-credenciadas', 'badgefilialmodal', 'filiaiscredenciadas', 'penalidade no ranking']
               found = [x for x in forbidden if x in text]
               if found:
                   raise SystemExit(f'Referências proibidas encontradas em {path}: {found}')
@@ -88,5 +92,5 @@ jobs:
             echo "Nenhuma alteração necessária."
             exit 0
           fi
-          git commit -m "fix: remover filiais da pagina de manutencoes"
+          git commit -m "fix: finalizar manutencoes sem filiais"
           git push
