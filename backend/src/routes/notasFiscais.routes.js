@@ -5,6 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const NotaFiscalController = require('../controllers/NotaFiscalController');
+const { exigirAutenticacao, carregarConta } = require('../middlewares/autenticacao');
+
+router.use(exigirAutenticacao);
+router.use(carregarConta);
 
 router.get('/', NotaFiscalController.listar);
 router.get('/:id', NotaFiscalController.buscarPorId);
