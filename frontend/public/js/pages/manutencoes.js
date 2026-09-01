@@ -92,7 +92,7 @@ async function carregarManutencoes() {
     verificarPendentes();
   } catch (e) {
     document.getElementById('corpoTabelaManutencoes').innerHTML =
-      '<tr><td colspan="9" class="text-center text-danger py-4">Erro ao carregar manutenções.</td></tr>';
+      '<tr><td colspan="8" class="text-center text-danger py-4">Erro ao carregar manutenções.</td></tr>';
   }
 }
 
@@ -182,7 +182,7 @@ function tipoLabel(tipo) {
 function renderizarTabela(lista) {
   const tbody = document.getElementById('corpoTabelaManutencoes');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">Nenhuma manutenção encontrada.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Nenhuma manutenção encontrada.</td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(m => {
@@ -448,19 +448,13 @@ function abrirRegularizar(id) {
 
 async function confirmarRegularizar() {
   const id       = document.getElementById('regularizarManutencaoId').value;
-  const decisao  = document.querySelector('input[name="decisaoRegularizar"]:checked').value;
-  const penalizar = decisao === 'penalizar';
   const obs      = document.getElementById('regularizarObs').value.trim() || null;
 
   try {
-    await ApiService.patch(`/manutencoes/${id}/regularizar`, { penalizar, observacoes: obs });
+    await ApiService.patch(`/manutencoes/${id}/regularizar`, { penalizar: false, observacoes: obs });
     modalRegularizar.hide();
     await carregarManutencoes();
-    Swal.fire({
-      icon: penalizar ? 'warning' : 'success',
-      title: penalizar ? 'Penalidade aplicada' : 'Liberado sem penalidade',
-      timer: 2500, showConfirmButton: false,
-    });
+    Swal.fire({ icon: 'success', title: 'Manutenção regularizada', timer: 2500, showConfirmButton: false });
   } catch (err) {
     Swal.fire({ icon: 'error', title: 'Erro', text: err.message || 'Não foi possível regularizar.' });
   }

@@ -347,23 +347,7 @@
       <div class="modal-body">
         <div id="infoPendenteAdmin" class="mb-3" style="background:var(--cinza-100);border-radius:10px;padding:12px 14px;font-size:0.85rem;"></div>
         <input type="hidden" id="regularizarManutencaoId">
-        <div class="mb-3">
-          <label class="form-label-gr">Decisão</label>
-          <div class="d-flex gap-3">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="decisaoRegularizar" id="optPenalizar" value="penalizar" checked>
-              <label class="form-check-label" for="optPenalizar" style="color:var(--perigo);font-weight:600;">
-                <i class="fa-solid fa-gavel"></i> Penalizar motorista
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="decisaoRegularizar" id="optLiberar" value="liberar">
-              <label class="form-check-label" for="optLiberar" style="color:var(--sucesso);font-weight:600;">
-                <i class="fa-solid fa-check"></i> Liberar como correto
-              </label>
-            </div>
-          </div>
-        </div>
+
         <div class="mb-3">
           <label class="form-label-gr">Observação (opcional)</label>
           <textarea class="form-control" id="regularizarObs" rows="2" placeholder="Motivo da decisão..."></textarea>
@@ -372,7 +356,7 @@
       <div class="modal-footer" style="border-top:1px solid var(--cinza-200);">
         <button type="button" class="btn-gr-outline" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn-gr-primario" id="btnConfirmarRegularizar">
-          <i class="fa-solid fa-gavel"></i> Confirmar decisão
+          <i class="fa-solid fa-check"></i> Confirmar regularização
         </button>
       </div>
     </div>
