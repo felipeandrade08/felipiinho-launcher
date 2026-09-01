@@ -4,10 +4,10 @@
 
 const { verificarToken } = require('../utils/token');
 const { erro } = require('../utils/respostaPadrao');
+const PlanoService = require('../services/PlanoService');
 
 function exigirAutenticacao(req, res, next) {
   const cabecalho = req.headers.authorization || '';
-  // Aceita token via query string para SSE (EventSource não suporta headers)
   const token = cabecalho.startsWith('Bearer ')
     ? cabecalho.slice(7)
     : (req.query.token || null);
@@ -21,6 +21,38 @@ function exigirAutenticacao(req, res, next) {
     return next();
   } catch (e) {
     return erro(res, 'Sessão inválida ou expirada. Faça login novamente.', 401);
+  }
+}
+
+/**
+ * Carrega o contexto da conta do usuário autenticado.
+ * A conta é resolvida no banco por conta_membros, evitando depender
+ * de conta_id dentro do JWT e mantendo as permissões atualizadas.
+ */
+async function carregarConta(req, res, next) {
+  try {
+    if (!req.usuario?.id) {
+      return erro(res, 'Usuário autenticado inválido.', 401);
+    }
+
+    const contexto = await PlanoService.obterContextoConta(req.usuario.id);
+
+    if (!contexto || contexto.conta_status !== 'ativa') {
+      return erro(res, 'Nenhuma conta ativa foi encontrada para este usuário.', 403);
+    }
+
+    req.conta = {
+      id: Number(contexto.conta_id),
+      tipo: contexto.conta_tipo,
+      status: contexto.conta_status,
+      papel: contexto.papel || null
+    };
+
+    req.contextoConta = contexto;
+    return next();
+  } catch (e) {
+    console.error('Erro ao carregar contexto da conta:', e);
+    return erro(res, 'Não foi possível carregar o contexto da sua conta.', 500);
   }
 }
 
@@ -50,4 +82,10 @@ function exigirAdminOuRH(req, res, next) {
   return next();
 }
 
-module.exports = { exigirAutenticacao, exigirAdmin, exigirDiretoriaOuAdmin, exigirAdminOuRH };
+module.exports = {
+  exigirAutenticacao,
+  carregarConta,
+  exigirAdmin,
+  exigirDiretoriaOuAdmin,
+  exigirAdminOuRH
+};
