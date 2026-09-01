@@ -10,7 +10,6 @@ const { exigirAutenticacao, carregarConta } = require('../middlewares/autenticac
 router.use(exigirAutenticacao);
 router.use(carregarConta);
 
-router.get('/filiais-credenciadas', C.listarFiliaisCredenciadas);
 router.get('/total-por-mes', C.totalPorMes);
 router.get('/pendentes', C.listarPendentes);
 router.get('/', C.listar);
